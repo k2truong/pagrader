@@ -1,0 +1,31 @@
+.app {
+  .brand {
+    position: absolute;
+    $size: 40px;
+    top: 5px;
+    left: 5px;
+    display: inline-block;
+    background: #2d2d2d url('../Home/logo.png') no-repeat center center;
+    width: $size;
+    height: $size;
+    background-size: 80%;
+    margin: 0 10px 0 0;
+    border-radius: $size / 2;
+  }
+  nav :global(.fa) {
+    font-size: 2em;
+    line-height: 20px;
+  }
+}
+.appContent {
+  padding: 50px 0;          // for fixed navbar
+  margin-bottom: -140px;  // for footer
+  padding-bottom: 140px;
+  min-height: 100vh;      // keep footer at bottom
+}
+
+.appFooter {
+  margin-top: 40px;
+  padding: 40px 0;
+  border-top: 1px solid #eee;
+}
