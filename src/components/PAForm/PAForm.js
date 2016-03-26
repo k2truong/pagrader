@@ -49,8 +49,6 @@ export default class PAForm extends Component {
   }
 
   render() {
-    require('react-datepicker/dist/react-datepicker.css');
-    // const styles = require('./RepoForm.scss');
     return (
       <form onSubmit={this.handleSubmit}>
         <div className="form-group">

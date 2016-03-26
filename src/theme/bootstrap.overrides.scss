@@ -2,7 +2,7 @@
  * Override Bootstrap styles that you can't modify via variables here.
  *
  */
-
+@import '~react-datepicker/dist/react-datepicker.css';
 
 .navbar-brand {
   position: relative;
@@ -42,3 +42,5 @@
   text-align: left;
   vertical-align: middle;
 }
+
+.buffer-top { margin-top: 20px; }

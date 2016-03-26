@@ -16,17 +16,17 @@ module.exports = Object.assign({
   apiPort: process.env.APIPORT,
   app: {
     title: 'PA Grader',
-    description: 'All the modern best practices in one example.',
+    description: 'Web application for grading programming assignments.',
     head: {
       titleTemplate: 'PAGrader: %s',
       meta: [
-        {name: 'description', content: 'All the modern best practices in one example.'},
+        {name: 'description', content: 'Web application for grading programming assignments.'},
         {charset: 'utf-8'},
         {property: 'og:site_name', content: 'PA Grader'},
         {property: 'og:image', content: 'https://react-redux.herokuapp.com/logo.jpg'},
         {property: 'og:locale', content: 'en_US'},
         {property: 'og:title', content: 'PA Grader'},
-        {property: 'og:description', content: 'All the modern best practices in one example.'},
+        {property: 'og:description', content: 'Web application for grading programming assignments.'},
         {property: 'og:card', content: 'summary'},
         {property: 'og:site', content: '@k2truong'},
         {property: 'og:creator', content: '@k2trong'},

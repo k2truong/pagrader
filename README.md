@@ -1,6 +1,6 @@
 # pagrader
 
----
+[![Build Status](https://travis-ci.org/k2truong/pagrader.svg?branch=master)](https://travis-ci.org/k2truong/pagrader)
 
 ## About
 

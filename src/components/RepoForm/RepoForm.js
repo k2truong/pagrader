@@ -46,8 +46,13 @@ export default class RepoForm extends Component {
   }
 
   render() {
+    const { error } = this.props;
+
     return (
-      <form onSubmit={this.handleSubmit}>
+      <form className="buffer-top" onSubmit={this.handleSubmit}>
+        { error &&
+          <div className="form-group">{ error.message }</div>
+        }
         <div className="form-group input-group">
             <input type="text" ref="sshusername" placeholder="SSH Username" className="form-control"/>
 
