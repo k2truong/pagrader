@@ -3,18 +3,42 @@
  *
  */
 
+
 .navbar-brand {
   position: relative;
   padding-left: 50px;
 }
 
-.navbar-default .navbar-nav > .active > a,
-.navbar-default .navbar-nav > .active > a:hover,
-.navbar-default .navbar-nav > .active > a:focus {
-  color: #33e0ff;
-  background-color: transparent;
+.navbar-default {
+  position: absolute;
+
+  .navbar-nav > .active > a,
+  .navbar-nav > .active > a:hover,
+  .navbar-nav > .active > a:focus {
+    color: #33e0ff;
+    background-color: transparent;
+  }
 }
 
 .btn.disabled, .btn[disabled], fieldset[disabled] .btn {
   cursor: default;
+}
+
+.modal {
+  text-align: center;
+  padding: 0!important;
+}
+
+.modal:before {
+  content: '';
+  display: inline-block;
+  height: 100%;
+  vertical-align: middle;
+  margin-right: -4px;
+}
+
+.modal-dialog {
+  display: inline-block;
+  text-align: left;
+  vertical-align: middle;
 }

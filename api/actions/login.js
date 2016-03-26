@@ -4,11 +4,13 @@ export default function login(req) {
   return new Promise((resolve, reject) => {
     passport.authenticate('login', (err, user, info) => {
       if (err) {
-        return reject(err);
+        reject({
+          message: err
+        });
       }
 
       if (!user) {
-        return reject({
+        reject({
           message: info.message,
           status: 403
         });
@@ -16,7 +18,9 @@ export default function login(req) {
 
       req.login(user, (loginErr) => {
         if (loginErr) {
-          return reject('Issue logging in.');
+          reject({
+            message: 'Issue logging in.'
+          });
         }
         resolve(user);
       });

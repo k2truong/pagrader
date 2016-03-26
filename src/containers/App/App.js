@@ -2,28 +2,20 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { IndexLink } from 'react-router';
 import { LinkContainer } from 'react-router-bootstrap';
-import Navbar from 'react-bootstrap/lib/Navbar';
+import { Navbar } from 'react-bootstrap';
 import Nav from 'react-bootstrap/lib/Nav';
 import NavItem from 'react-bootstrap/lib/NavItem';
 import Helmet from 'react-helmet';
-import { isLoaded as isInfoLoaded, load as loadInfo } from 'redux/modules/info';
 import { isLoaded as isAuthLoaded, load as loadAuth, logout } from 'redux/modules/auth';
 import { routeActions } from 'react-router-redux';
 import config from '../../config';
 import { asyncConnect } from 'redux-async-connect';
 
 @asyncConnect([{
-  promise: ({
-    store: {
-      dispatch,
-      getState
-    }
-  }) => {
+  promise: (options) => {
+    const { store: {dispatch, getState} } = options;
     const promises = [];
 
-    if (!isInfoLoaded(getState())) {
-      promises.push(dispatch(loadInfo()));
-    }
     if (!isAuthLoaded(getState())) {
       promises.push(dispatch(loadAuth()));
     }
@@ -56,7 +48,7 @@ export default class App extends Component {
       this.props.pushState('/');
     } else if (this.props.user && !nextProps.user) {
       // logout
-      this.props.pushState('/');
+      this.props.pushState('/login');
     }
   }
 
@@ -66,58 +58,36 @@ export default class App extends Component {
   };
 
   render() {
-    const {user} = this.props;
+    // const {user} = this.props;
     const styles = require('./App.scss');
 
     return (
       <div className={styles.app}>
         <Helmet {...config.app.head}/>
-        <Navbar fixedTop>
-          <Navbar.Header>
-            <Navbar.Brand>
-              <IndexLink to="/" activeStyle={{color: '#33e0ff'}}>
-                <div className={styles.brand}/>
-                <span>{config.app.title}</span>
-              </IndexLink>
-            </Navbar.Brand>
-            <Navbar.Toggle/>
-          </Navbar.Header>
+        { // user &&
+          <Navbar fixedTop>
+            <Navbar.Header>
+              <Navbar.Brand>
+                <IndexLink to="/" activeStyle={{color: '#33e0ff'}}>
+                  <div className={styles.brand}/>
+                  <span>{config.app.title}</span>
+                </IndexLink>
+              </Navbar.Brand>
+              <Navbar.Toggle/>
+            </Navbar.Header>
 
-          <Navbar.Collapse>
-            <Nav navbar pullRight>
-              {user && <LinkContainer to="/chat">
-                <NavItem>Chat</NavItem>
-              </LinkContainer>}
-
-              <LinkContainer to="/widgets">
-                <NavItem>Widgets</NavItem>
-              </LinkContainer>
-              <LinkContainer to="/survey">
-                <NavItem>Survey</NavItem>
-              </LinkContainer>
-              <LinkContainer to="/about">
-                <NavItem>About Us</NavItem>
-              </LinkContainer>
-
-              {!user && <LinkContainer to="/login">
-                <NavItem>Log in</NavItem>
-              </LinkContainer>}
-
-              {!user && <LinkContainer to="/signup">
-                <NavItem>Sign Up</NavItem>
-              </LinkContainer>}
-
-              {user &&
-              <LinkContainer to="/signout">
-                <NavItem className="logout-link" onClick={this.handleLogout}>
-                  Logout
-                </NavItem>
-              </LinkContainer>}
-            </Nav>
-            {user &&
-            <p className="navbar-text"><strong>{user.username}</strong></p>}
-          </Navbar.Collapse>
-        </Navbar>
+            <Navbar.Collapse>
+              <Nav navbar pullRight>
+                <LinkContainer to="/signout">
+                  <NavItem className="logout-link" onClick={this.handleLogout}>
+                    Logout
+                  </NavItem>
+                </LinkContainer>
+              </Nav>
+              {/* <p className="navbar-text"><strong>{user.username}</strong></p> */}
+            </Navbar.Collapse>
+          </Navbar>
+        }
 
         <div className={styles.appContent}>
           {this.props.children}

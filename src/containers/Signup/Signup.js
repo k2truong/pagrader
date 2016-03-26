@@ -5,8 +5,9 @@ import { signup, destroy } from 'redux/modules/auth';
 
 @connect(
   state => ({
-    user: state.auth.user,
-    error: state.auth.error
+    error: state.auth.error,
+    loading: state.auth.loading,
+    user: state.auth.user
   }), {
     signup,
     destroy
@@ -15,6 +16,7 @@ export default class Signup extends Component {
   static propTypes = {
     destroy: PropTypes.func.isRequired,
     error: PropTypes.object,
+    loading: PropTypes.bool,
     signup: PropTypes.func.isRequired,
     user: PropTypes.object
   }
@@ -24,20 +26,22 @@ export default class Signup extends Component {
   }
 
   handleSubmit = (event) => {
-    event.preventDefault();
+    if (!this.props.loading) {
+      event.preventDefault();
 
-    const username = this.refs.username;
-    const password = this.refs.password;
+      const username = this.refs.username;
+      const password = this.refs.password;
 
-    this.props.signup({
-      username: username.value,
-      password: password.value
-    });
-    password.value = '';
+      this.props.signup({
+        username: username.value,
+        password: password.value
+      });
+      password.value = '';
+    }
   }
 
   render() {
-    const {error} = this.props;
+    const {error, loading} = this.props;
     const styles = require('./Signup.scss');
     return (
       <div className={styles.signupPage + ' container'}>
@@ -48,15 +52,18 @@ export default class Signup extends Component {
             <p>{error.message}</p>
           }
           <div>
-            <form className="login-form" onSubmit={this.handleSubmit}>
+            <form onSubmit={this.handleSubmit}>
               <div className="form-group">
                 <input type="text" ref="username" placeholder="Pick a username" className="form-control"/>
               </div>
               <div className="form-group">
                 <input type="password" ref="password" placeholder="Create a password" className="form-control"/>
               </div>
-              <button className="btn btn-lg btn-block btn-primary" onClick={this.handleSubmit}>
-                <i className="fa fa-sign-in"/>{' '}Sign Up
+              <button
+                className={(loading ? 'disabled ' : '') + 'btn btn-block btn-primary'}
+                onClick={this.handleSubmit}
+              >
+                Sign Up
               </button>
             </form>
           </div>

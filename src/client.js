@@ -7,8 +7,8 @@ import ReactDOM from 'react-dom';
 import createStore from './redux/create';
 import ApiClient from './helpers/ApiClient';
 import io from 'socket.io-client';
-import { Provider } from 'react-redux';
-import { Router, browserHistory } from 'react-router';
+import {Provider} from 'react-redux';
+import { Router, browserHistory, match } from 'react-router';
 import { ReduxAsyncConnect } from 'redux-async-connect';
 import useScroll from 'scroll-behavior/lib/useStandardScroll';
 
@@ -20,7 +20,7 @@ const dest = document.getElementById('content');
 const store = createStore(history, client, window.__data);
 
 function initSocket() {
-  const socket = io('', { path: '/ws' });
+  const socket = io('', {path: '/ws'});
   socket.on('news', (data) => {
     console.log(data);
     socket.emit('my other event', { my: 'data from client' });
@@ -34,46 +34,45 @@ function initSocket() {
 
 global.socket = initSocket();
 
-const component = (
-  <Router
-    history={ history }
-    render={ function render(props) {
-      return (<ReduxAsyncConnect {...props}
-        helpers={{ client }}
-        filter={ function filter(item) { return !item.deferred; }}
-      />);
-    }}
-  >
-    { getRoutes(store) }
-  </Router>
-);
+const routes = getRoutes(store);
 
-ReactDOM.render(
-  <Provider store={store} key="provider">
-    {component}
-  </Provider>,
-  dest
-);
+match({ history, routes }, (error, redirectLocation, renderProps) => {
+  const component = (
+    <Router { ...renderProps }
+      history={ history }
+      routes={ routes }
+      render={(props) =>
+          <ReduxAsyncConnect {...props} helpers={{ client }} />
+      }
+    />
+  );
 
-if (process.env.NODE_ENV !== 'production') {
-  window.React = React; // enable debugger
-
-  if (!dest || !dest.firstChild ||
-    !dest.firstChild.attributes || !dest.firstChild.attributes['data-react-checksum']) {
-    console.error('Server-side React render was discarded. ' +
-      'Make sure that your initial render does not contain any client-side code.');
-  }
-}
-
-if (__DEVTOOLS__ && !window.devToolsExtension) {
-  const DevTools = require('./containers/DevTools/DevTools');
   ReactDOM.render(
     <Provider store={store} key="provider">
-      <div>
-        {component}
-        <DevTools />
-      </div>
+      {component}
     </Provider>,
     dest
   );
-}
+
+  if (process.env.NODE_ENV !== 'production') {
+    window.React = React; // enable debugger
+
+    if (!dest || !dest.firstChild || !dest.firstChild.attributes ||
+        !dest.firstChild.attributes['data-react-checksum']) {
+      console.error('Server-side React render was discarded. Make sure that your initial render does not contain any client-side code.');
+    }
+  }
+
+  if (__DEVTOOLS__ && !window.devToolsExtension) {
+    const DevTools = require('./containers/DevTools/DevTools');
+    ReactDOM.render(
+      <Provider store={store} key="provider">
+        <div>
+          {component}
+          <DevTools />
+        </div>
+      </Provider>,
+      dest
+    );
+  }
+});

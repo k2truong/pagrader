@@ -21,7 +21,7 @@
   padding: 50px 0;          // for fixed navbar
   margin-bottom: -140px;  // for footer
   padding-bottom: 140px;
-  min-height: 100vh;      // keep footer at bottom
+  min-height: calc(100vh);      // keep footer at bottom
 }
 
 .appFooter {

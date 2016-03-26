@@ -38,10 +38,8 @@ module.exports = (passport) => {
       // save the user
       newUser.save((saveErr) => {
         if (saveErr) {
-          console.log('Error in Saving user: ' + saveErr);
           throw saveErr;
         }
-        console.log('User Registration succesful');
         return done(null, newUser);
       });
     });

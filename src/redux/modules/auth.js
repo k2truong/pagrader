@@ -1,15 +1,15 @@
-const LOAD = 'redux-example/auth/LOAD';
-const LOAD_SUCCESS = 'redux-example/auth/LOAD_SUCCESS';
-const LOAD_FAIL = 'redux-example/auth/LOAD_FAIL';
-const LOGIN = 'redux-example/auth/LOGIN';
-const LOGIN_SUCCESS = 'redux-example/auth/LOGIN_SUCCESS';
-const LOGIN_FAIL = 'redux-example/auth/LOGIN_FAIL';
-const LOGOUT = 'redux-example/auth/LOGOUT';
-const LOGOUT_SUCCESS = 'redux-example/auth/LOGOUT_SUCCESS';
-const LOGOUT_FAIL = 'redux-example/auth/LOGOUT_FAIL';
-const SIGNUP = 'redux-example/auth/SIGNUP';
-const SIGNUP_FAIL = 'redux-example/auth/SIGNUP_FAIL';
-const DESTROY = 'redux-example/auth/DESTROY';
+export const LOAD = 'redux-example/auth/LOAD';
+export const LOAD_SUCCESS = 'redux-example/auth/LOAD_SUCCESS';
+export const LOAD_FAIL = 'redux-example/auth/LOAD_FAIL';
+export const LOGIN = 'redux-example/auth/LOGIN';
+export const LOGIN_SUCCESS = 'redux-example/auth/LOGIN_SUCCESS';
+export const LOGIN_FAIL = 'redux-example/auth/LOGIN_FAIL';
+export const LOGOUT = 'redux-example/auth/LOGOUT';
+export const LOGOUT_SUCCESS = 'redux-example/auth/LOGOUT_SUCCESS';
+export const LOGOUT_FAIL = 'redux-example/auth/LOGOUT_FAIL';
+export const SIGNUP = 'redux-example/auth/SIGNUP';
+export const SIGNUP_FAIL = 'redux-example/auth/SIGNUP_FAIL';
+export const DESTROY = 'redux-example/auth/DESTROY';
 
 const initialState = {
   loaded: false
@@ -39,36 +39,36 @@ export default function reducer(state = initialState, action = {}) {
     case LOGIN:
       return {
         ...state,
-        loggingIn: true
+        loading: true
       };
     case LOGIN_SUCCESS:
       return {
         ...state,
-        loggingIn: false,
+        loading: false,
         user: action.result
       };
     case LOGIN_FAIL:
       return {
         ...state,
-        loggingIn: false,
+        loading: false,
         user: null,
         error: action.error
       };
     case LOGOUT:
       return {
         ...state,
-        loggingOut: true
+        loading: true
       };
     case LOGOUT_SUCCESS:
       return {
         ...state,
-        loggingOut: false,
+        loading: false,
         user: null
       };
     case LOGOUT_FAIL:
       return {
         ...state,
-        loggingOut: false,
+        loading: false,
         error: action.error
       };
     case SIGNUP:

@@ -39,7 +39,8 @@
     "test": "karma start",
     "test-node": "better-npm-run test-node",
     "win-test-node": "better-npm-run win-test-node",
-    "win-test": "better-npm-run win-test"
+    "win-test": "better-npm-run win-test",
+    "test-redux": "mocha src/redux/modules/__tests__/* --compilers js:babel-core/register"
   },
   "betterScripts": {
     "start-prod": {
@@ -106,7 +107,7 @@
       }
     },
     "win-test-node": {
-      "command": "mocha api/__tests__/*-test.js api/*/__tests__/*-test.js --compilers js:babel-core/register --no-timeouts",
+      "command": "mocha api/__tests__/*-test.js --compilers js:babel-core/register",
       "env": {
         "NODE_PATH": "./api",
         "APIPORT": 3030
@@ -151,6 +152,7 @@
     "less": "^2.5.3",
     "less-loader": "^2.2.1",
     "map-props": "^1.0.0",
+    "moment": "^2.12.0",
     "mongoose": "^4.4.5",
     "multireducer": "^2.0.0",
     "passport": "^0.3.2",
@@ -158,7 +160,8 @@
     "piping": "^0.3.0",
     "pretty-error": "^1.2.0",
     "react": "^0.14.2",
-    "react-bootstrap": "^0.28.1",
+    "react-bootstrap": "^0.28.3",
+    "react-datepicker": "^0.25.0",
     "react-dom": "^0.14.1",
     "react-helmet": "^2.2.0",
     "react-inline-css": "^2.0.0",
@@ -167,13 +170,14 @@
     "react-router-bootstrap": "^0.20.1",
     "react-router-redux": "^3.0.0",
     "redux": "^3.0.4",
-    "redux-async-connect": "^1.0.0-rc2",
+    "redux-async-connect": "^1.0.0-rc4",
     "redux-form": "^3.0.12",
     "scroll-behavior": "^0.3.2",
     "serialize-javascript": "^1.1.2",
     "serve-favicon": "^2.3.0",
     "socket.io": "^1.3.7",
     "socket.io-client": "^1.3.7",
+    "ssh2": "^0.4.14",
     "superagent": "^1.4.0",
     "url-loader": "^0.5.7",
     "warning": "^2.1.0",
@@ -185,8 +189,8 @@
     "babel-plugin-react-transform": "^2.0.0",
     "babel-plugin-typecheck": "^3.6.0",
     "better-npm-run": "0.0.7",
-    "bootstrap-sass": "^3.3.5",
-    "bootstrap-sass-loader": "^1.0.9",
+    "bootstrap-loader": "^1.0.9",
+    "bootstrap-sass": "^3.3.6",
     "chai": "^3.3.0",
     "clean-webpack-plugin": "^0.1.6",
     "concurrently": "^0.1.1",
@@ -220,6 +224,7 @@
     "redux-devtools": "^3.0.0-beta-3",
     "redux-devtools-dock-monitor": "^1.0.0-beta-3",
     "redux-devtools-log-monitor": "^1.0.0-beta-3",
+    "resolve-url-loader": "^1.4.3",
     "sass-loader": "^3.1.2",
     "sinon": "^1.17.2",
     "strip-loader": "^0.1.0",

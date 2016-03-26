@@ -5,10 +5,8 @@
  *
  */
 
-export CounterButton from './CounterButton/CounterButton';
-export GithubButton from './GithubButton/GithubButton';
-export InfoBar from './InfoBar/InfoBar';
-export MiniInfoBar from './MiniInfoBar/MiniInfoBar';
-export SurveyForm from './SurveyForm/SurveyForm';
-export WidgetForm from './WidgetForm/WidgetForm';
-// export LoginForm from './LoginForm/LoginForm';
+export RepoForm from './RepoForm/RepoForm';
+export PAForm from './PAForm/PAForm';
+export RepoList from './RepoList/RepoList';
+export FolderSelector from './FolderSelector/FolderSelector';
+// export InputForm from './InputForm/InputForm';
