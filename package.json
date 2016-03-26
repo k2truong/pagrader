@@ -100,14 +100,14 @@
       }
     },
     "test-node": {
-      "command": "mocha $(find api -name '*-test.js') --compilers js:babel-core/register",
+      "command": "mocha $(find api -name '*-test.js') --no-timeouts --compilers js:babel-core/register",
       "env": {
         "NODE_PATH": "./api",
         "APIPORT": 3030
       }
     },
     "win-test-node": {
-      "command": "mocha api/__tests__/*-test.js --no-timeouts --compilers js:babel-core/register",
+      "command": "mocha api/__tests__/*-test.js --compilers js:babel-core/register",
       "env": {
         "NODE_PATH": "./api",
         "APIPORT": 3030

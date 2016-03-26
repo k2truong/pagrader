@@ -23,6 +23,11 @@ describe('createRepo', () => {
     });
   });
 
+  after((done) => {
+    mongoose.disconnect();
+    done();
+  });
+
   const mockRepo = {
     description: 'CSE5 Winter 2015'
   };
