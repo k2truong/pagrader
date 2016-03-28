@@ -18,7 +18,7 @@ module.exports = Object.assign({
     title: 'PA Grader',
     description: 'Web application for grading programming assignments.',
     head: {
-      titleTemplate: 'PAGrader: %s',
+      titleTemplate: '%s - PA Grader',
       meta: [
         {name: 'description', content: 'Web application for grading programming assignments.'},
         {charset: 'utf-8'},

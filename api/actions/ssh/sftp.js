@@ -37,3 +37,27 @@
       //   // initiate transfer of file
       //   readStream.pipe(writeStream);
       // });
+
+import fs from 'fs';
+import path from 'path';
+export default function sftp(req, params) {
+  const fileName = params[0];
+
+  return new Promise((resolve, reject) => {
+    const dirPath = path.join(__dirname, `/scripts/${fileName}`);
+    console.log(dirPath);
+    fs.stat(dirPath, (err) => {
+      if (err) {
+        console.log('Error: ' + err);
+        return reject({
+          message: 'Error in reading file'
+        });
+      }
+
+      resolve((res) => {
+        const readStream = fs.createReadStream(dirPath);
+        readStream.pipe(res);
+      });
+    });
+  });
+}

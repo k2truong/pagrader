@@ -1,15 +1,15 @@
-export const LOAD = 'redux-example/auth/LOAD';
-export const LOAD_SUCCESS = 'redux-example/auth/LOAD_SUCCESS';
-export const LOAD_FAIL = 'redux-example/auth/LOAD_FAIL';
-export const LOGIN = 'redux-example/auth/LOGIN';
-export const LOGIN_SUCCESS = 'redux-example/auth/LOGIN_SUCCESS';
-export const LOGIN_FAIL = 'redux-example/auth/LOGIN_FAIL';
-export const LOGOUT = 'redux-example/auth/LOGOUT';
-export const LOGOUT_SUCCESS = 'redux-example/auth/LOGOUT_SUCCESS';
-export const LOGOUT_FAIL = 'redux-example/auth/LOGOUT_FAIL';
-export const SIGNUP = 'redux-example/auth/SIGNUP';
-export const SIGNUP_FAIL = 'redux-example/auth/SIGNUP_FAIL';
-export const DESTROY = 'redux-example/auth/DESTROY';
+export const LOAD = 'pagrader/auth/LOAD';
+export const LOAD_SUCCESS = 'pagrader/auth/LOAD_SUCCESS';
+export const LOAD_FAIL = 'pagrader/auth/LOAD_FAIL';
+export const LOGIN = 'pagrader/auth/LOGIN';
+export const LOGIN_SUCCESS = 'pagrader/auth/LOGIN_SUCCESS';
+export const LOGIN_FAIL = 'pagrader/auth/LOGIN_FAIL';
+export const LOGOUT = 'pagrader/auth/LOGOUT';
+export const LOGOUT_SUCCESS = 'pagrader/auth/LOGOUT_SUCCESS';
+export const LOGOUT_FAIL = 'pagrader/auth/LOGOUT_FAIL';
+export const SIGNUP = 'pagrader/auth/SIGNUP';
+export const SIGNUP_FAIL = 'pagrader/auth/SIGNUP_FAIL';
+export const DESTROY = 'pagrader/auth/DESTROY';
 
 const initialState = {
   loaded: false

@@ -21,11 +21,13 @@ export default class Home extends Component {
       <div className={styles.home}>
         <Helmet title="Home"/>
         <div className="container">
-          <div className="col-lg-9">
-            <RepoList />
-          </div>
-          <div className="col-lg-3">
-            <RepoForm />
+          <div className="row">
+            <div className="col-lg-9">
+              <RepoList />
+            </div>
+            <div className="col-lg-3">
+              <RepoForm />
+            </div>
           </div>
         </div>
       </div>

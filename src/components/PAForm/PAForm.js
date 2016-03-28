@@ -55,7 +55,7 @@ export default class PAForm extends Component {
           <FolderSelector />
         </div>
         <div className="form-group">
-          <textarea placeholder="Input" rows="6" className="form-control" />
+          <textarea ref="input" placeholder="Input" rows="6" className="form-control" />
         </div>
         <div className="form-group">
           <div className="input-group">
@@ -72,7 +72,7 @@ export default class PAForm extends Component {
           </div>
         </div>
         <div className="form-group">
-          <textarea placeholder="PA Guide" rows="6" className="form-control" />
+          <textarea ref="paguide" placeholder="PA Guide" rows="6" className="form-control" />
         </div>
         <button className="btn btn-block btn-primary">
           + New PA

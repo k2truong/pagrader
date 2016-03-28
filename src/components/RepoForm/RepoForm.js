@@ -30,7 +30,9 @@ export default class RepoForm extends Component {
   }
 
   getHelpTooltip() {
-    return <Tooltip id="sshTooltip">This is the tutor account on ieng6 where the assignments are stored. (i.e cs11u5) </Tooltip>;
+    return (<Tooltip id="sshTooltip">
+      This is the tutor account on ieng6 where the assignments are stored. (i.e cs11u5)
+    </Tooltip>);
   }
 
   handleSubmit = (event) => {
