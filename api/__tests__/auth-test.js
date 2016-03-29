@@ -37,13 +37,13 @@ describe('Passport: routes', () => {
       .expect(200)
       .end((err, res) => {
         expect(err).to.be.a('null');
-        expect(res.body.username).to.equal(userInfo.username);
-        expect(res.body.password).to.not.equal(userInfo.password);
+        expect(res.body.username).equal(userInfo.username);
+        expect(res.body.password).not.equal(userInfo.password);
 
         User.findOne({ 'username': userInfo.username }, (dbErr, user) => {
           expect(dbErr).to.be.a('null');
-          expect(res.body.username).to.equal(user.username);
-          expect(res.body.password).to.equal(user.password);
+          expect(res.body.username).equal(user.username);
+          expect(res.body.password).equal(user.password);
           done();
         });
       });
@@ -66,7 +66,7 @@ describe('Passport: routes', () => {
       .expect(200)
       .end((err, res) => {
         expect(err).to.be.an('null');
-        expect(res.body.username).to.equal(userInfo.username);
+        expect(res.body.username).equal(userInfo.username);
         done();
       });
   });

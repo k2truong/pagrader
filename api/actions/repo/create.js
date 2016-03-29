@@ -2,8 +2,10 @@ import Repo from '../../models/repo';
 import connect from '../ssh/connect';
 
 export default function create(req) {
+  const { username, description } = req.body;
+
   return new Promise((resolve, reject) => {
-    Repo.findOne({ username: req.body.username }, (err, res) => {
+    Repo.findOne({ username: username }, (err, res) => {
       if (err) {
         return reject({
           message: err
@@ -16,9 +18,10 @@ export default function create(req) {
         });
       }
 
-      const newRepo = new Repo();
-      newRepo.username = req.body.username;
-      newRepo.description = req.body.description;
+      const newRepo = new Repo({
+        username: username,
+        description: description
+      });
 
       connect(req).then((connRes) => {
         newRepo.save((saveErr) => {
