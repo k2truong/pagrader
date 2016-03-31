@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
 
 const assignmentSchema = new mongoose.Schema({
-  bonusMap: mongoose.Schema.Types.Mixed,
   input: String,
   name: String,
   path: String,
   bonusDate: Date,
+  guide: String,
   repo: mongoose.Schema.Types.ObjectId
 });
 
