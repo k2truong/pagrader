@@ -1,26 +1,27 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { Modal, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { command as sshCommand, savePath } from 'redux/modules/repo';
-// import { routeActions } from 'react-router-redux';
+import { Modal, OverlayTrigger, Tooltip, Button } from 'react-bootstrap';
+import { command as sshCommand } from 'redux/modules/repo';
 
 @connect(
   state => ({
     stdout: state.repo.stdout,
-    path: state.repo.repo.path,
-    loading: state.repo.loading
+    loading: state.repo.loading,
+    error: state.repo.error
   }), {
-    sshCommand,
-    savePath
+    sshCommand
   }
 )
 export default class FolderSelector extends Component {
   static propTypes = {
     loading: PropTypes.bool,
-    path: PropTypes.string,
+    path: PropTypes.string.isRequired,
+    error: PropTypes.object,
     stdout: PropTypes.string,
     sshCommand: PropTypes.func.isRequired,
-    savePath: PropTypes.func.isRequired
+    onChange: PropTypes.func.isRequired,
+    selectedFolder: PropTypes.string,
+    folderDisabled: PropTypes.bool
   }
 
   constructor(props, context) {
@@ -29,7 +30,7 @@ export default class FolderSelector extends Component {
     this.state = {
       showModal: false,
       selectedPath: this.props.path,
-      folderSelected: false
+      selectedFolder: this.props.selectedFolder
     };
   }
 
@@ -63,29 +64,25 @@ export default class FolderSelector extends Component {
       newPath = (path.charAt(path.length - 1) === '/') ? path + dir : path + '/' + dir;
     }
 
-    this.setState({
-      ...this.state,
-      selectedPath: newPath
-    });
+    this.setState({ selectedPath: newPath });
     this.getDirectories(newPath);
   }
 
   open = () => {
-    this.setState({ ...this.state, showModal: true });
+    this.setState({ showModal: true });
     this.getDirectories(this.state.selectedPath);
   }
 
   close = () => {
-    this.setState({ ...this.state, selectedPath: this.props.path, showModal: false });
+    this.setState({ selectedPath: this.props.path, showModal: false });
   }
 
   save = () => {
-    this.props.savePath(this.state.selectedPath);
-    this.setState({
-      ...this.state,
-      folderSelected: true,
-      showModal: false
-    });
+    const path = this.state.selectedPath;
+    const selectedFolder = path.match(/.*\/(.+?)\/?$/)[1];
+
+    this.props.onChange(path, selectedFolder);
+    this.setState({ selectedFolder: selectedFolder, showModal: false });
   }
 
   handleClick = (event) => {
@@ -97,20 +94,28 @@ export default class FolderSelector extends Component {
   }
 
   render() {
-    const { loading, stdout, path } = this.props;
-    const { selectedPath, showModal, folderSelected } = this.state;
+    const { error, loading, stdout, folderDisabled } = this.props;
+    const { selectedPath, showModal, selectedFolder } = this.state;
     const files = stdout && stdout.split('\n');
 
     return (
       <div>
         <div className="input-group">
-          <span className="input-group-btn">
-            <button className="btn btn-primary" onClick={ this.open }>Select Folder</button>
-          </span>
+          {
+            folderDisabled ||
+            <span className="input-group-btn">
+              <Button
+                className="btn btn-primary"
+                onClick={ this.open }
+              >
+                Select Folder
+              </Button>
+            </span>
+          }
           <input
             type="text"
             className="form-control"
-            value={ folderSelected ? path.match(/.*\/(.*$)/)[1] : '' }
+            value={ selectedFolder }
             readOnly
           />
           <OverlayTrigger placement="bottom" overlay={this.getHelpTooltip()} >
@@ -126,39 +131,56 @@ export default class FolderSelector extends Component {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <h4>
-              { selectedPath }
-            </h4>
-            { loading &&
-              <i className="fa fa-spinner fa-pulse" />
-            }
-            { !loading &&
-              <ul className="list-inline" onClick={ this.handleClick }>
-                { selectedPath !== '/' &&
-                  <li><a href="#">..</a></li>
-                }
-                { files && files.length &&
-                  files.map((file) =>
-                    <li key={ file }>
-                      <a href="#">
-                        { file }
-                      </a>
-                    </li>
-                  )
-                }
-              </ul>
+            {
+              error && <h4>{ error.message }</h4> ||
+
+              <FileList
+                loading={ loading }
+                selectedPath={ selectedPath }
+                files={ files }
+                handleClick={ this.handleClick }
+              />
             }
           </Modal.Body>
           <Modal.Footer>
-            <button className="btn btn-primary" onClick={this.save}>
-              Select Folder
-            </button>
-            <button className="btn btn-primary" onClick={this.close}>
+            {
+              !error &&
+              <Button className="btn btn-primary" onClick={this.save}>
+                Select Folder
+              </Button>
+            }
+            <Button className="btn btn-primary" onClick={this.close}>
               Cancel
-            </button>
+            </Button>
           </Modal.Footer>
         </Modal>
       </div>
     );
   }
+}
+
+function FileList({loading, selectedPath, files, handleClick}) {
+  return (
+    <div>
+      <h4>{ selectedPath }</h4>
+      {
+        loading && <i className="fa fa-spinner fa-pulse" /> ||
+
+        <ul className="list-inline" onClick={ handleClick }>
+          { selectedPath !== '/' &&
+            <li><a href="#">..</a></li>
+          }
+          { files && files.length &&
+            files.map((file) =>
+              <li key={ file }>
+                <a href="#">
+                  { file }
+                </a>
+              </li>
+            )
+          }
+        </ul>
+      }
+    </div>
+  );
 }

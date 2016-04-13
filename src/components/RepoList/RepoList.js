@@ -5,13 +5,11 @@ import { connect } from 'react-redux';
 @connect(
   state => ({
     repos: state.repo.repos,
-    error: state.repo.error
   }), {}
 )
 export default class RepoList extends Component {
   static propTypes = {
     repos: PropTypes.array,
-    error: PropTypes.object
   }
 
   render() {
@@ -20,13 +18,18 @@ export default class RepoList extends Component {
     return (
       <div>
         { repos && repos.length &&
-          repos.map((repo) =>
-            <div key={repo.username}>
-              <LinkContainer to={`/repo/${repo.username}`}>
-                <a >{repo.username} | {repo.description}</a>
-              </LinkContainer>
-            </div>
-          ) ||
+          <div>
+            <h1>Repositories</h1>
+            <ul className="list-group">
+              {
+                repos.map((repo) =>
+                  <LinkContainer key={repo.username} to={`/repo/${repo.username}`}>
+                    <a className="list-group-item">{repo.username} | {repo.description}</a>
+                  </LinkContainer>
+                )
+              }
+            </ul>
+          </div> ||
           <h1>No repositories added yet!</h1>
         }
       </div>

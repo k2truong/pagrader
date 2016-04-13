@@ -8,17 +8,16 @@ export const LOAD = 'pagrader/repo/LOAD';
 export const LOAD_SUCCESS = 'pagrader/repo/LOAD_SUCCESS';
 export const LOAD_FAIL = 'pagrader/repo/LOAD_FAIL';
 export const SAVE_PATH = 'pagrader/repo/SAVE_PATH';
+export const DESTROY = 'pagrader/repo/DESTROY';
 
 const initialState = {
   loaded: false
 };
-
 export default function reducer(state = initialState, action = {}) {
   switch (action.type) {
     case CONNECT:
       return {
         ...state,
-        repo: null,
         loading: true
       };
     case CONNECT_SUCCESS:
@@ -51,16 +50,7 @@ export default function reducer(state = initialState, action = {}) {
       return {
         ...state,
         loading: false,
-        stdout: action.result
-      };
-
-    case SAVE_PATH:
-      return {
-        ...state,
-        repo: {
-          ...state.repo,
-          path: action.result
-        }
+        error: action.error
       };
 
     case LOAD:
@@ -82,6 +72,13 @@ export default function reducer(state = initialState, action = {}) {
         loaded: false,
         loading: false,
         error: action.error
+      };
+
+    case DESTROY:
+      return {
+        ...state,
+        loaded: false,
+        error: null
       };
     default:
       return state;
@@ -129,16 +126,15 @@ export function command(cmd) {
   };
 }
 
-export function savePath(path) {
-  return {
-    type: SAVE_PATH,
-    result: path
-  };
-}
-
 export function load() {
   return {
     types: [LOAD, LOAD_SUCCESS, LOAD_FAIL],
     promise: (client) => client.get('/repo/load')
+  };
+}
+
+export function destroy() {
+  return {
+    type: DESTROY
   };
 }

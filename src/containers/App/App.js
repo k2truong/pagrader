@@ -58,7 +58,7 @@ export default class App extends Component {
   };
 
   render() {
-    // const {user} = this.props;
+    const { user } = this.props;
     const styles = require('./App.scss');
 
     return (
@@ -78,11 +78,14 @@ export default class App extends Component {
 
             <Navbar.Collapse>
               <Nav navbar pullRight>
-                <LinkContainer to="/signout">
-                  <NavItem className="logout-link" onClick={this.handleLogout}>
-                    Logout
-                  </NavItem>
-                </LinkContainer>
+                {
+                  user &&
+                  <LinkContainer to="/signout">
+                    <NavItem className="logout-link" onClick={this.handleLogout}>
+                      Logout
+                    </NavItem>
+                  </LinkContainer>
+                }
               </Nav>
               {/* <p className="navbar-text"><strong>{user.username}</strong></p> */}
             </Navbar.Collapse>
@@ -94,10 +97,9 @@ export default class App extends Component {
         </div>
 
         <div className={styles.appFooter + ' text-center'}>
-          Have questions? Ask for help <a
-          href="https://github.com/erikras/react-redux-universal-hot-example/issues"
-          target="_blank">on Github</a> or in the <a
-          href="https://discord.gg/0ZcbPKXt5bZZb1Ko" target="_blank">#react-redux-universal</a> Discord channel.
+          Have questions or see issues? Submit them <a
+          href="https://github.com/k2truong/pagrader/issues"
+          target="_blank">on Github</a> or email me at kenneth.e.truong@gmail.com.
         </div>
       </div>
     );
