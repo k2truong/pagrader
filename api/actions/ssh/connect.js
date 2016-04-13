@@ -1,8 +1,6 @@
 import { Client } from 'ssh2';
-import Repo from '../../models/repo';
 import { saveSSHConnection } from '../../ssh/connection';
 import command from './command';
-
 
 export default function connect(req) {
   return new Promise((resolve, reject) => {
@@ -20,26 +18,19 @@ export default function connect(req) {
 
     conn.on('ready', () => {
       saveSSHConnection(socketId, conn);
-      Repo.findOne({ username: username }, (err, res) => {
-        if (err) {
-          reject({
-            message: 'Error retrieving repository'
-          });
+      command({
+        body: {
+          socketId: socketId,
+          command: 'pwd'
         }
-
-        command({
-          body: {
-            socketId: socketId,
-            command: 'pwd'
-          }
-        }).then((stdout) => {
-          resolve({
-            username: username,
-            description: res.description,
-            path: stdout
-          });
-        }, (cmdErr) => {
-          reject(cmdErr);
+      }).then((stdout) => {
+        resolve({
+          username: username,
+          path: stdout
+        });
+      }).catch((cmdErr) => {
+        reject({
+          message: cmdErr
         });
       });
     }).connect({

@@ -11,11 +11,13 @@ import secrets from './config/secrets.js';
 import passport from 'passport';
 import initPassport from './passport/init';
 import mongoose from 'mongoose';
+import mongoSession from 'connect-mongo';
 import { closeSSHConnection } from './ssh/connection';
 
 const isProd = process.env.NODE_ENV === 'production';
 const pretty = new PrettyError();
 
+const MongoStore = mongoSession(session);
 const app = express();
 const server = new http.Server(app);
 const io = new SocketIo(server);
@@ -36,10 +38,14 @@ export default new Promise((resolve, reject) => {
 
       app.use(session({
         secret: secrets.session,
+        store: new MongoStore({
+          mongooseConnection: mongoose.connection,
+          touchAfter: 300
+        }),
         resave: false,
         saveUninitialized: false,
         cookie: {
-          maxAge: 60000,
+          maxAge: 3600,
           secure: isProd
         },
       }));

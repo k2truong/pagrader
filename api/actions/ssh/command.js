@@ -18,10 +18,8 @@ export default function connect(req) {
           resolve(output.trim());
         }).on('data', (data) => {
           output += data;
-        }).stderr.on('data', (data) => {
-          reject({
-            message: data
-          });
+        }).on('error', (data) => {
+          output += data;
         });
       });
     } else {

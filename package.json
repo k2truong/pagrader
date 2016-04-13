@@ -107,14 +107,14 @@
       }
     },
     "win-test-node": {
-      "command": "mocha api/__tests__/*-test.js --compilers js:babel-core/register",
+      "command": "mocha api/__tests__/*-test.js --no-timeouts --compilers js:babel-core/register",
       "env": {
         "NODE_PATH": "./api",
         "APIPORT": 3030
       }
     },
     "win-test": {
-      "command": "mocha api/__tests__/auth-test.js --no-timeouts --compilers js:babel-core/register",
+      "command": "mocha api/__tests__/ssh-test.js --no-timeouts --compilers js:babel-core/register",
       "env": {
         "NODE_PATH": "./api",
         "APIPORT": 3030
@@ -143,6 +143,7 @@
     "bcryptjs": "^2.3.0",
     "body-parser": "^1.14.1",
     "compression": "^1.6.0",
+    "connect-mongo": "^1.1.0",
     "express": "^4.13.3",
     "express-session": "^1.12.1",
     "file-loader": "^0.8.5",
@@ -161,7 +162,7 @@
     "pretty-error": "^1.2.0",
     "react": "^0.14.2",
     "react-bootstrap": "^0.28.3",
-    "react-datepicker": "^0.25.0",
+    "react-bootstrap-datetimepicker": "0.0.22",
     "react-dom": "^0.14.1",
     "react-helmet": "^2.2.0",
     "react-inline-css": "^2.0.0",
