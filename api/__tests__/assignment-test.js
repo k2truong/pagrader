@@ -198,4 +198,12 @@ describe('Assignment API', () => {
       done();
     }).catch(done);
   });
+
+  const WRONG_ASSIGNMENT = 'NONE';
+  it('should not load any assignments', (done) => {
+    load({}, [MOCK_ASSIGNMENT.repo, WRONG_ASSIGNMENT]).then((res) => {
+      expect(res).equal(null);
+      done();
+    }).catch(done);
+  });
 });

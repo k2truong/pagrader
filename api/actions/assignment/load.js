@@ -7,7 +7,7 @@ export default function load(req, params) {
 
     const data = { repo };
     if (assignment) {
-      req.name = assignment;
+      data.name = assignment;
     }
 
     Assignment.find(data, (err, res) => {
@@ -17,10 +17,14 @@ export default function load(req, params) {
         });
       }
 
-      if (assignment && res.length === 1) {
-        return resolve(res[0]);
+      if (assignment) {
+        if (res.length) {
+          return resolve(res[0]);
+        }
+        return resolve(null);
       }
-      return resolve(null);
+
+      return resolve(res);
     });
   });
 }
