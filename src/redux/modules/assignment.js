@@ -56,7 +56,6 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         hasChanged: true,
         loaded: true,
-        loading: false,
         assignment: action.result
       };
     case UPDATE_FAIL:
@@ -90,40 +89,31 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         loading: true
       };
-    case GET_GRADERS_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        graders: action.result.graders,
-        samples: action.result.samples
-      };
-    case GET_GRADERS_FAIL:
-      return {
-        ...state,
-        loading: false,
-        error: action.error
-      };
 
     case RUN_SCRIPT:
       return {
         ...state,
         hasChanged: false,
-        loading: true
+        loading: true,
+        graders: null,
+        previewList: null
       };
+    case GET_GRADERS_SUCCESS:
     case RUN_SUCCESS:
       return {
         ...state,
         loading: false,
         graders: action.result.graders,
-        samples: action.result.samples
+        previewList: action.result.previewList
       };
+    case GET_GRADERS_FAIL:
     case RUN_FAIL:
       return {
         ...state,
         loading: false,
         error: action.error,
         graders: null,
-        samples: null
+        previewList: null
       };
 
     case DESTROY:

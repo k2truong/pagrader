@@ -29,24 +29,40 @@ export default class OutputContainer extends Component {
     this.props.load(socket.id, assignmentId, graderId, fileName);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.fileName !== nextProps.fileName) {
+      const { assignmentId, graderId, fileName } = nextProps;
+
+      this.props.load(socket.id, assignmentId, graderId, fileName);
+    }
+  }
+
   createMarkup = () => {
     return { __html: this.props.output };
   }
 
   render() {
     const styles = require('./OutputContainer.scss');
-    const { fileName, viewHeight } = this.props;
+    const { fileName, viewHeight, error } = this.props;
 
     return (
       <div className= { styles.outputContainer }>
-        <h4>
-          { fileName.replace(/\.[^/.]+$/, '') }
-        </h4>
-        <pre
-          style={{ height: `${ viewHeight }vh` }}
-          dangerouslySetInnerHTML={ this.createMarkup() }
-        >
-        </pre>
+        { error &&
+          <h1 className="alert alert-danger">{ error.message } "{ fileName }"</h1>
+        }
+        {
+          !error &&
+          <div>
+            <h4>
+              { fileName.replace(/\.[^/.]+$/, '') }
+            </h4>
+            <pre
+              style={{ height: `${ viewHeight }vh` }}
+              dangerouslySetInnerHTML={ this.createMarkup() }
+            >
+            </pre>
+          </div>
+        }
       </div>
     );
   }

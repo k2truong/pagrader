@@ -10,7 +10,7 @@ export default function save(req) {
       studentId
     }, req.body, { upsert: true}, (err) => {
       if (err) {
-        reject({
+        return reject({
           message: err
         });
       }

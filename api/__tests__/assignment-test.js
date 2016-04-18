@@ -22,7 +22,6 @@ describe('Assignment API', () => {
 
   after((done) => {
     // Clean up after finished with tests
-
     mongoose.disconnect();
     done();
   });

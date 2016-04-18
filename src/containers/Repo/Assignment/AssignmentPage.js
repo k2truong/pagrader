@@ -19,7 +19,7 @@ import { destroy, isLoaded, load, runScript, update, getGraders } from 'redux/mo
     repo: state.repo.repo,
     assignment: state.assignment.assignment,
     hasChanged: state.assignment.hasChanged,
-    samples: state.assignment.samples,
+    previewList: state.assignment.previewList,
     loading: state.assignment.loading,
     error: state.assignment.error
   }), {
@@ -38,13 +38,20 @@ export default class AssignmentPage extends Component {
     assignment: PropTypes.object,
     repo: PropTypes.object,
     runScript: PropTypes.func.isRequired,
+    hasChanged: PropTypes.bool,
     update: PropTypes.func.isRequired,
     getGraders: PropTypes.func.isRequired,
-    samples: PropTypes.array
+    previewList: PropTypes.array
+  }
+
+  constructor(props, context) {
+    super(props, context);
+
+    this.state = { previewIndex: 0 };
   }
 
   componentWillMount() {
-    if (this.props.repo) {
+    if (this.props.repo && !this.props.hasChanged) {
       this.props.getGraders(socket.id, this.props.params.assignmentId);
     }
   }
@@ -58,13 +65,43 @@ export default class AssignmentPage extends Component {
     if (nextProps.hasChanged) {
       this.props.runScript({
         socketId: socket.id,
-        assignment: this.props.assignment
+        assignment: nextProps.assignment
       });
+      this.setState({ previewIndex: 0 });
     }
   }
 
   componentWillUnmount() {
     this.props.destroy();
+  }
+
+  handleRefreshClick = (event) => {
+    event.preventDefault();
+
+    if (event.target.className.indexOf('disabled') === -1) {
+      this.props.getGraders(socket.id, this.props.params.assignmentId);
+      this.setState({ previewIndex: 0 });
+    }
+  }
+
+  handleLeftClick = (event) => {
+    event.preventDefault();
+    if (event.target.className.indexOf('disabled') === -1) {
+      const { previewList } = this.props;
+      const { previewIndex } = this.state;
+
+      this.setState({ previewIndex: previewIndex ? previewIndex - 1 : previewList.length - 1 });
+    }
+  }
+
+  handleRightClick = (event) => {
+    event.preventDefault();
+    if (event.target.className.indexOf('disabled') === -1) {
+      const { previewList } = this.props;
+      const { previewIndex } = this.state;
+
+      this.setState({ previewIndex: (previewIndex + 1) % previewList.length });
+    }
   }
 
   handleSubmit = (data) => {
@@ -75,7 +112,8 @@ export default class AssignmentPage extends Component {
 
   render() {
     const { assignmentId, repoId } = this.props.params;
-    const { assignment, error, repo, loading, samples } = this.props;
+    const { assignment, error, repo, loading, previewList } = this.props;
+    const { previewIndex } = this.state;
 
     return (
       <div>
@@ -84,37 +122,45 @@ export default class AssignmentPage extends Component {
           { repo && repo.username === repoId &&
             <div>
               <h2>
-                { repoId }
+                { repoId }&nbsp;
+                <a href="#" onClick={ this.handleRefreshClick } title="Refresh">
+                  <i className={ 'btn fa fa-refresh' + (loading ? ' fa-pulse disabled' : '') } />
+                </a>
               </h2>
               <div className="row">
                 <div className="col-lg-8">
                 <GraderList
                   assignmentId={ assignmentId }
                   repoId={ repoId }
-                  loading={ loading }
                 />
                 {
-                  samples && samples.length &&
+                  previewList && previewList.length &&
                   <div>
                     <h3>
-                      Preview
+                      Preview&nbsp;
+                      <a href="#" onClick={ this.handleLeftClick }>
+                        <i className={ 'btn fa fa-arrow-left' + (loading ? ' disabled' : '') } />
+                      </a>
+                      <a href="#" onClick={ this.handleRightClick }>
+                        <i className={ 'btn fa fa-arrow-right' + (loading ? ' disabled' : '')} />
+                      </a>
                     </h3>
-                    {
-                      samples.map((sample) =>
-                        <OutputContainer
-                          key={ sample }
-                          viewHeight="30"
-                          multireducerKey="studentOutput"
-                          assignmentId={ assignmentId }
-                          graderId={ sample.split('/')[0] }
-                          fileName={ sample.split('/')[1] }
-                        />
-                      )
+                    { !loading &&
+                      <OutputContainer
+                        viewHeight="50"
+                        multireducerKey="studentOutput"
+                        assignmentId={ assignmentId }
+                        graderId={ previewList[previewIndex].split('/')[0] }
+                        fileName={ previewList[previewIndex].split('/')[1] }
+                      />
                     }
-                  </div> ||
-                  <h1 className="text-center">
+                  </div> || !error && !loading &&
+                  <h1 className="alert alert-danger">
                     No assignments found! Please try running the script again
                     or make sure the repository path is correct!
+                  </h1> || error &&
+                  <h1 className="alert alert-danger">
+                    { error.message }
                   </h1>
                 }
                 </div>

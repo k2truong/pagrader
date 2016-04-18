@@ -10,7 +10,7 @@ export default function connect(req) {
 
     conn.on('error', (connErr) => {
       if (connErr) {
-        reject({
+        return reject({
           message: 'Error connecting to SSH'
         });
       }
@@ -28,11 +28,7 @@ export default function connect(req) {
           username: username,
           path: stdout
         });
-      }).catch((cmdErr) => {
-        reject({
-          message: cmdErr
-        });
-      });
+      }).catch(reject);
     }).connect({
       host: 'ieng6.ucsd.edu',
       port: 22,

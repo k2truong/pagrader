@@ -21,7 +21,7 @@ export default function create(req) {
     }
 
     if (errors.length) {
-      reject({
+      return reject({
         message: `Missing ${ errors.join(', ')}`
       });
     }

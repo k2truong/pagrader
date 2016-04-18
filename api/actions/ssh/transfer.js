@@ -1,25 +1,35 @@
+import { command } from './';
 import { getSSHConnection } from '../../ssh/connection';
 
-function write(sftp, fileStream, filePath, content, resolve, reject) {
-  const writeStream = sftp.createWriteStream(filePath);
+function write(socketId, sftp, fileStream, filePath, content, resolve, reject) {
+  command({
+    body: {
+      socketId,
+      command: `rm ${ filePath }`
+    }
+  }).then(() => {
+    const writeStream = sftp.createWriteStream(filePath);
 
-  writeStream.on('close', () => {
-    resolve();
-  });
-
-  writeStream.on('error', (err) => {
-    reject({
-      message: err
+    writeStream.on('close', () => {
+      sftp.end();
+      resolve();
     });
-  });
 
-  if (fileStream) {
-    // initiate transfer of file
-    fileStream.pipe(writeStream);
-  } else {
-    writeStream.write(content);
-    writeStream.end();
-  }
+    writeStream.on('error', (err) => {
+      sftp.end();
+      reject({
+        message: err
+      });
+    });
+
+    if (fileStream) {
+      // initiate transfer of file
+      fileStream.pipe(writeStream);
+    } else {
+      writeStream.write(content);
+      writeStream.end();
+    }
+  });
 }
 
 export default function transfer(req) {
@@ -27,28 +37,34 @@ export default function transfer(req) {
     const { socketId, filePath, fileStream, content } = req.body;
 
     const conn = getSSHConnection(socketId);
-    conn.sftp((sshErr, sftp) => {
-      if (sshErr) {
-        reject({
-          message: sshErr
-        });
-      }
-
-      const dirPath = filePath.substring(0, filePath.lastIndexOf('/'));
-      sftp.readdir(dirPath, (readErr) => {
-        if (readErr) {
-          sftp.mkdir(dirPath, (err) => {
-            if (err) {
-              reject({
-                message: err
-              });
-            }
-            write(sftp, fileStream, filePath, content, resolve, reject);
+    if (conn) {
+      conn.sftp((sshErr, sftp) => {
+        if (sshErr) {
+          return reject({
+            message: sshErr
           });
-        } else {
-          write(sftp, fileStream, filePath, content, resolve, reject);
         }
+
+        const dirPath = filePath.substring(0, filePath.lastIndexOf('/'));
+        sftp.readdir(dirPath, (readErr) => {
+          if (readErr) {
+            sftp.mkdir(dirPath, (err) => {
+              if (err) {
+                return reject({
+                  message: err
+                });
+              }
+              write(socketId, sftp, fileStream, filePath, content, resolve, reject);
+            });
+          } else {
+            write(socketId, sftp, fileStream, filePath, content, resolve, reject);
+          }
+        });
       });
-    });
+    } else {
+      return reject({
+        message: 'No SSH Connection! Try relogging.'
+      });
+    }
   });
 }

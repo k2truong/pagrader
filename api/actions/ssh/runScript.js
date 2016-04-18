@@ -33,42 +33,45 @@ export default function connect(req) {
             cp -r ${ path }/* .;
             cp ../*.sh .;
             chmod 777 *.sh;
-            ed -s *.sh <<< $'H\ng/\r*$/s///\nwq';
-            ./*.sh "${ bonusDate }"`
+            ed -s *.sh <<< $'H\ng/\r*$/s///\nwq';`
         }
-      }).then((res) => {
-        console.log('asdfasdf');
-        console.log(res);
-        if (res.indexOf('Error') >= 0) {
-          return Promise.reject({
-            message: res
-          });
-        }
-
-        const data = {
-          graders: res ? res.split('\n') : null
-        };
+      }).then(() => {
         return command({
           body: {
             socketId,
-            command: `cd .private_repo/${ name };
-              shopt -s nullglob;
-              files=(*/*.out.html);
-              printf "%s\\n" "$\{files[RANDOM % $\{#files[@]}]}";
-              printf "%s\\n" "$\{files[(RANDOM + 1) % $\{#files[@]}]}"`
+            command: `cd ${ repoPath };./*.sh "${ bonusDate }"`
           }
-        }).then((samples) => {
-          if (samples) {
-            data.samples = samples.split('\n');
-          }
-
-          if (!data.graders || !data.samples) {
+        }).then((res) => {
+          if (res.indexOf('Error') >= 0) {
             return Promise.reject({
-              message: 'Error running script! Please make sure repository path is correct!'
+              message: res
             });
           }
 
-          return data;
+          const data = {
+            graders: res ? res.split('\n') : null
+          };
+          return command({
+            body: {
+              socketId,
+              command: `cd .private_repo/${ name };
+                shopt -s nullglob;
+                files=(*/*.out.html);
+                printf "%s\\n" "$\{files[@]}";`
+            }
+          }).then((previewList) => {
+            if (previewList) {
+              data.previewList = previewList.split('\n');
+            }
+
+            if (!data.graders || !data.previewList) {
+              return Promise.reject({
+                message: 'Error running script! Please make sure repository path is correct!'
+              });
+            }
+
+            return data;
+          });
         });
       });
     });

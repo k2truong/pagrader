@@ -8,7 +8,7 @@ export default function connect(req) {
     if (conn) {
       conn.exec(command, (err, stream) => {
         if (err) {
-          reject({
+          return reject({
             message: err
           });
         }
@@ -18,12 +18,10 @@ export default function connect(req) {
           resolve(output.trim());
         }).on('data', (data) => {
           output += data;
-        }).on('error', (data) => {
-          output += data;
         });
       });
     } else {
-      reject({
+      return reject({
         message: 'No SSH Connection! Try relogging.'
       });
     }

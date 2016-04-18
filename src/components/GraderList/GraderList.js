@@ -11,12 +11,11 @@ export default class GraderList extends Component {
   static propTypes = {
     repoId: PropTypes.string.isRequired,
     assignmentId: PropTypes.string.isRequired,
-    loading: PropTypes.bool,
     graders: PropTypes.array
   }
 
   render() {
-    const { repoId, assignmentId, graders, loading } = this.props;
+    const { repoId, assignmentId, graders } = this.props;
 
     return (
       <div>
@@ -31,8 +30,7 @@ export default class GraderList extends Component {
                 )
               }
             </ul>
-          </div> ||
-          (loading && <i className="fa fa-spinner fa-pulse" />)
+          </div>
         }
       </div>
     );

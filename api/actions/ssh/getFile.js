@@ -8,20 +8,38 @@ export default function getFile(req, params) {
     const fileName = params[3];
 
     const conn = getSSHConnection(socketId);
-    conn.sftp((sshErr, sftp) => {
-      if (sshErr) {
-        reject({
-          message: sshErr
-        });
-      }
+    if (conn) {
+      conn.sftp((sshErr, sftp) => {
+        if (sshErr) {
+          return reject({
+            message: sshErr
+          });
+        }
 
-      resolve((res) => {
         const filePath = `.private_repo/${ assignmentId }/${ graderId }/${ fileName }`;
         const readStream = sftp.createReadStream(filePath);
 
-        readStream.pipe(res);
-        return readStream;
+        readStream.on('open', () => {
+          resolve((res) => {
+            readStream.pipe(res);
+            return readStream;
+          });
+        });
+
+        readStream.on('close', () => {
+          sftp.end();
+        });
+
+        readStream.on('error', (err) => {
+          reject({
+            message: err.message
+          });
+        });
       });
-    });
+    } else {
+      return reject({
+        message: 'No SSH Connection! Try relogging.'
+      });
+    }
   });
 }
