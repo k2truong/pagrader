@@ -26,20 +26,25 @@ if [ ! -e "input.txt" ]; then
 fi
 
 prt=(*.prt)
-#Parse PA#.prt for output
 if test ${#prt[@]} -ne 1; then
   echo -en "Error: Missing PA prt file: \"PA#.prt\""
   exit -1
 else
+  #Parse PA#.prt for output (We are looking for a line that starts with .output)
   awk -v regex="[A-z]*.output" '$0 ~ regex {seen = 1}
-     seen {print}' $prt > output
-  awk '(NR==1){print "<p>\n" $0} (NR%14&&NR!=1){print $0}!(NR%14){print $0} END{print "</p>"}' output > output.html
-  rm output
+     seen {print}' $prt > output.html
 fi
+
+# This file helps keeps store all the students that turned in their assignment early for bonus
+if [ -e bonusList ]; then
+  rm bonusList
+fi
+# Variable to keep track of bonus list
+bonuslist=""
 
 repos=(*/)
 for dir in ${repos[@]}; do
-  cp input.txt $prt $dir
+  cp input.txt output.html $prt $dir
   cd $dir
 
   assignments=(*.c)
@@ -49,6 +54,14 @@ for dir in ${repos[@]}; do
   else
     echo $dir
   fi
+
+  for assignment in ${assignments[@]}; do
+    ed -s $assignment <<< $'H\ng/\r*$/s///\nwq' # dos2unix equivalent
+    cat $assignment > ${assignment:0:6}.html
+    # This is to make sure that their programs have the stdlib.h since students don't check that it
+    # works on the linux machines and turn in without running it
+    echo '#include <stdlib.h>' | cat - $assignment > temp && mv temp $assignment
+  done
 
   # Remove all previous output
   if [ -e ${assignments[0]%.c}.out.html ] ; then
@@ -61,7 +74,6 @@ for dir in ${repos[@]}; do
   #   mv code.html "${f%.c}.html"
   # done
 
-  bonuslist=""
   counter=0
   #Parse PA.prt file
   while read LINE
@@ -70,21 +82,22 @@ for dir in ${repos[@]}; do
     #Find PA's info in PA.prt file for bonus date
     if [[ "$LINE" =~ "${assignments[${counter}]:0:6}" ]]
     then
-      # echo ${assignments[${counter}]%.c}
-      fname="${assignments[${counter}]%.c}"
+      fname="${assignments[${counter}]:0:6}"
 
-      #Convert bonus date of PA to seconds
+      # Convert bonus date of PA to seconds
+      # Get date Each line in PA.prt has the turn in date on the 6th 7th 8th column
       filetime=$(date --date="$(echo $LINE | cut -d' ' -f6,7,8)" +%s)
+
+
+      # Check for extra credit
+      if [ $filetime -le $bonus ]; then
+        bonuslist="${bonuslist}${fname}\n"
+      fi
 
       #Compile and ignore warnings
       gcc -Werror ${assignments[${counter}]} &> $fname.out.html
       #Check if error
       if [ $? -ne 1 ]; then
-        #Check for extra credit
-        if [ $filetime -le $bonus ]; then
-          bonuslist="${bonuslist} \"${fname}\","
-        fi
-
         #Run program manually feeding input and printing out output in background process
         if [ -e input ]; then
           rm input
@@ -134,15 +147,15 @@ for dir in ${repos[@]}; do
           errorCode=$?
           #Check if the program was terminated
           if [[ $errorCode -eq 142 ]] ; then
-            echo "<p class='alert alert-danger'>Program terminated because of infinite loop please check manually.</p>" >> $fname.out.html
+            echo "<p class='alert alert-danger'>Program terminated because of infinite loop.\nPlease run their program manually or check their code.</p>" >> $fname.out.html
             rm error # Error is from infinite loop
             break
           elif [[ $errorCode -eq 143 ]] ; then
-            printf "<p class='alert alert-danger'>Program terminated because it was expecting more input even after all input was used up.\n(Note: This could mean they have getchar() at the end of their code.)</p>" >> $fname.out.html
+            printf "<p class='alert alert-danger'>Program terminated because it was waiting for more input than expected.\n(Note: This could mean they have getchar() at the end of their code.\nPlease run their program manually or check their code.)</p>" >> $fname.out.html
             rm error # Error is from running out of input
             break
           elif [ -s error ] ; then
-            echo "<h1 class='alert alert-danger'>Runtime Error!</h1>" >> $fname.out.html
+            echo "<h2 class='alert alert-danger'>Runtime Error!</h2>" >> $fname.out.html
             cat error >> $fname.out.html
             rm error # Run time error
             break
@@ -171,22 +184,12 @@ for dir in ${repos[@]}; do
 
         rm temp a.out
       else  #Error while compiling
-        echo "<h1 class='alert alert-danger'>Compile Error!</h1>" | cat - $fname.out.html > temp && mv temp $fname.out.html
-        #Check for extra credit
-        if [ $filetime -le $bonus ]; then
-          bonuslist="${bonuslist} \"${fname}\","
-        fi
+        echo "<h2 class='alert alert-danger'>Compile Error!</h2>" | cat - $fname.out.html > temp && mv temp $fname.out.html
       fi
       counter=$((counter+1))
       [ $counter -eq ${#assignments[@]} ] && break
     fi
   done < $prt
-
-  #Bonus list remove comma at end
-  bonuslist=${bonuslist%?}
-
-  echo $bonuslist > bonusList
-
 
   if [ -e "strace.fifo" ]; then
     rm strace.fifo
@@ -195,3 +198,5 @@ for dir in ${repos[@]}; do
   rm input.txt $prt
   cd ..
 done
+
+printf "${bonuslist}" >> bonusList

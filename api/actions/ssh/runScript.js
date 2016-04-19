@@ -2,10 +2,12 @@
  * This file helps transfer the input.txt needed and then runs the script in the hidden directory
  */
 import { command, transfer} from './';
+import { saveStudents } from '../grade';
 
-export default function connect(req) {
+// TODO: Need to split this file apart so that we make multiple queries
+export default function runScript(req) {
   const { assignment, socketId } = req.body;
-  const { input, path, bonusDate, name } = assignment;
+  const { repo, input, path, bonusDate, name } = assignment;
   const repoPath = `.private_repo/${ path.match(/.*\/(.+?)\/?$/)[1] }`;
 
   return command({
@@ -60,17 +62,38 @@ export default function connect(req) {
                 printf "%s\\n" "$\{files[@]}";`
             }
           }).then((previewList) => {
-            if (previewList) {
-              data.previewList = previewList.split('\n');
-            }
-
-            if (!data.graders || !data.previewList) {
+            if (!data.graders || !previewList) {
               return Promise.reject({
                 message: 'Error running script! Please make sure repository path is correct!'
               });
             }
 
-            return data;
+            // Grab bonusList
+            return command({
+              body: {
+                socketId,
+                command: `cd .private_repo/${ name };
+                  cat bonusList;`
+              }
+            }).then((bonusList) => {
+              data.previewList = previewList.split('\n');
+              // Save the students after running the script
+              return saveStudents({
+                body: {
+                  repoId: repo,
+                  assignmentId: name,
+                  students: data.previewList.map((fileName) => {
+                    return {
+                      graderId: fileName.split('/')[0],
+                      studentId: fileName.split('/')[1].replace(/\..*/, '')
+                    };
+                  }),
+                  bonusList: bonusList.split('\n')
+                }
+              }).then(() => {
+                return data;
+              });
+            });
           });
         });
       });

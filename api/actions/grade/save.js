@@ -1,6 +1,6 @@
 import Grade from '../../models/grade';
 
-export default function save(req) {
+export default function saveGrade(req) {
   return new Promise((resolve, reject) => {
     const { studentId, assignment, repo } = req.body;
 
@@ -8,7 +8,7 @@ export default function save(req) {
       assignment,
       repo,
       studentId
-    }, req.body, { upsert: true}, (err) => {
+    }, req.body, (err) => {
       if (err) {
         return reject({
           message: err

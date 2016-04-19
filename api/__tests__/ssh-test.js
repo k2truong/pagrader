@@ -4,6 +4,7 @@
 import { expect } from 'chai';
 import { connect, command, transfer, runScript, getFile } from '../actions/ssh';
 import { getSSHConnection, closeSSHConnection } from '../ssh/connection';
+import mongoose from 'mongoose';
 import secrets from '../config/secrets';
 import path from 'path';
 import fs from 'fs';
@@ -11,10 +12,33 @@ import fs from 'fs';
 // These can only be ran if we have an ssh server to run the tests on
 if (secrets.sshTestInfo) {
   describe('SSH Protocols', () => {
+    before((done) => {
+      mongoose.connect(secrets.db, (dbErr) => {
+        if (dbErr) {
+          done(dbErr);
+        } else {
+          for (const collection in mongoose.connection.collections) {
+            if (mongoose.connection.collections[collection]) {
+              mongoose.connection.collections[collection].remove(() => {});
+            }
+          }
+          done();
+        }
+      });
+    });
+
     const SOCKET_ID = 'mockSocketId';
     after((done) => {
       // Clean up after finished with tests
+      for (const collection in mongoose.connection.collections) {
+        if (mongoose.connection.collections[collection]) {
+          mongoose.connection.collections[collection].remove(() => {});
+        }
+      }
+
+      // Clean up after finished with tests
       closeSSHConnection(SOCKET_ID);
+      mongoose.disconnect();
       done();
     });
 
@@ -68,52 +92,52 @@ if (secrets.sshTestInfo) {
       }).catch(done);
     });
 
-    // it('should transfer cs7uaaP1.c', (done) => {
-    //   const dirPath = path.join(__dirname, `./PA1/cs7u2_PA1/cs7uaaP1.c`);
-    //   const fileStream = fs.createReadStream(dirPath);
-    //   transfer({
-    //     body: {
-    //       socketId: SOCKET_ID,
-    //       filePath: './GRADER/PA1/cs7u2_PA1/cs7uaaP1.c',
-    //       fileStream
-    //     }
-    //   }).then(() => {
-    //     done();
-    //   }).catch(done);
-    // });
+    it('should transfer cs7uaaP1.c', (done) => {
+      const dirPath = path.join(__dirname, `./PA1/cs7u2_PA1/cs7uaaP1.c`);
+      const fileStream = fs.createReadStream(dirPath);
+      transfer({
+        body: {
+          socketId: SOCKET_ID,
+          filePath: './GRADER/PA1/cs7u2_PA1/cs7uaaP1.c',
+          fileStream
+        }
+      }).then(() => {
+        done();
+      }).catch(done);
+    });
 
-    // it('should transfer cs7uacP1.c', (done) => {
-    //   const dirPath = path.join(__dirname, `./PA1/cs7u2_PA1/cs7uacP1.c`);
-    //   const fileStream = fs.createReadStream(dirPath);
-    //   transfer({
-    //     body: {
-    //       socketId: SOCKET_ID,
-    //       filePath: './GRADER/PA1/cs7u2_PA1/cs7uacP1.c',
-    //       fileStream
-    //     }
-    //   }).then(() => {
-    //     done();
-    //   }).catch(done);
-    // });
+    it('should transfer cs7uacP1.c', (done) => {
+      const dirPath = path.join(__dirname, `./PA1/cs7u2_PA1/cs7uacP1.c`);
+      const fileStream = fs.createReadStream(dirPath);
+      transfer({
+        body: {
+          socketId: SOCKET_ID,
+          filePath: './GRADER/PA1/cs7u2_PA1/cs7uacP1.c',
+          fileStream
+        }
+      }).then(() => {
+        done();
+      }).catch(done);
+    });
 
-    // it('should transfer content', (done) => {
-    //   transfer({
-    //     body: {
-    //       socketId: SOCKET_ID,
-    //       filePath: '.private_repo/test.txt',
-    //       content: 'This\nis\na\ntest\ntransfer.'
-    //     }
-    //   }).then(() => {
-    //     done();
-    //   }).catch(done);
-    // });
+    it('should transfer content', (done) => {
+      transfer({
+        body: {
+          socketId: SOCKET_ID,
+          filePath: '.private_repo/test.txt',
+          content: 'This\nis\na\ntest\ntransfer.'
+        }
+      }).then(() => {
+        done();
+      }).catch(done);
+    });
 
     const MOCK_ASSIGNMENT = {
       repo: 'cs7s10',
       input: 'B\n1900\n3.3\n \nA\n2000\n2.2',
       name: 'PA1',
       path: '/home/linux/ieng6/cs7s/cs7s10/GRADER/PA1',
-      bonusDate: '1/24/1991 12:00'
+      bonusDate: 'Jul 2 15:00'
     };
     it('should run script', (done) => {
       runScript({
@@ -129,7 +153,7 @@ if (secrets.sshTestInfo) {
 
     it('should get output', (done) => {
       getFile({},
-        [SOCKET_ID, MOCK_ASSIGNMENT.name, 'cs7u2_PA1', 'cs7uaaP1.out.html']
+        [SOCKET_ID, MOCK_ASSIGNMENT.name, 'cs7u2_PA1', 'cs7uaa.out.html']
       ).then((res) => {
         const readStream = res(process.stdout);
         readStream.on('end', () => {

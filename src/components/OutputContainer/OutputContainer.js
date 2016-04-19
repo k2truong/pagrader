@@ -54,7 +54,7 @@ export default class OutputContainer extends Component {
           !error &&
           <div>
             <h4>
-              { fileName.replace(/\.[^/.]+$/, '') }
+              { fileName.replace(/\.[^\.]+$/, '') }
             </h4>
             <pre
               style={{ height: `${ viewHeight }vh` }}

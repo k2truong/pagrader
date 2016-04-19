@@ -1,22 +1,23 @@
 import React, { Component, PropTypes } from 'react';
-import { connect } from 'react-redux';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { save } from 'redux/modules/grade';
 
-@connect(
-  state => ({
-    loading: state.grade.loading,
-    // assignmentId: state.assignment.id,
-  }), {
-    save
-  })
 export default class GraderForm extends Component {
   static propTypes = {
-    studentId: PropTypes.string,
-    assignmentId: PropTypes.string,
-    save: PropTypes.func.isRequired,
-    loading: PropTypes.bool
+    bonus: PropTypes.bool,
+    comment: PropTypes.string,
+    grade: PropTypes.string,
+    onSave: PropTypes.func.isRequired
   };
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      bonus: props.bonus,
+      comment: props.comment,
+      grade: props.grade
+    };
+  }
 
   getHelpTooltip() {
     return (<Tooltip id="bonusTooltip">
@@ -24,32 +25,30 @@ export default class GraderForm extends Component {
     </Tooltip>);
   }
 
-  handleChange = () => {
+  handleChange = (event) => {
+    event.preventDefault();
     this.dirty = true;
   }
 
-  handleBlur = () => {
+  handleBlur = (event) => {
+    event.preventDefault();
     if (this.dirty) {
       const { grade, comment } = this.refs;
-      const { assignmentId, studentId } = this.props;
-
-      this.props.save({
-        assignmentId: assignmentId,
-        studentId: studentId,
-        grade: grade,
-        comment: comment
-      });
+      this.props.onSave(grade.value, comment.value);
+      this.dirty = false;
     }
   }
 
   render() {
+    const { bonus, comment, grade } = this.props;
+
     return (
       <div>
         <form className="" onBlur={ this.handleBlur } onChange={ this.handleChange }>
           <div className="form-group">
             <label>Bonus:</label>
             <div className="input-group">
-              <input type="text" value="True" className="form-control" readOnly />
+              <input type="text" value={ bonus } className="form-control" readOnly />
               <OverlayTrigger placement="bottom" overlay={ this.getHelpTooltip() }>
                 <span className="input-group-addon">
                     <i className="fa fa-question-circle" rel="help"></i>
@@ -59,12 +58,12 @@ export default class GraderForm extends Component {
           </div>
           <div className="form-group">
             <label>Grade:</label>
-            <input type="text" ref="grade" className="form-control" />
+            <input type="text" ref="grade" className="form-control" defaultValue={ grade } />
           </div>
 
           <div className="form-group">
             <label>Comments:</label>
-            <textarea ref="comment" rows="20" className="form-control" />
+            <textarea ref="comment" rows="20" className="form-control" defaultValue={ comment } />
           </div>
         </form>
       </div>

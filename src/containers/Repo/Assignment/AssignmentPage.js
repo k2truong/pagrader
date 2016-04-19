@@ -51,23 +51,30 @@ export default class AssignmentPage extends Component {
   }
 
   componentWillMount() {
-    if (this.props.repo && !this.props.hasChanged) {
+    if (this.props.hasChanged) {
+      // We just created this assignment so we should run the script
+      this.props.runScript({
+        socketId: socket.id,
+        assignment: this.props.assignment
+      });
+      this.setState({ previewIndex: 0 });
+    } else if (this.props.repo) {
+      // We're navigating into this assignment and we are already logged in
       this.props.getGraders(socket.id, this.props.params.assignmentId);
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    // We just logged into the repository so we can fetch from the SSH folder
-    if (!this.props.repo && nextProps.repo) {
-      this.props.getGraders(socket.id, this.props.params.assignmentId);
-    }
-
     if (nextProps.hasChanged) {
+      // User just updated the assignment arguments so we should run the script
       this.props.runScript({
         socketId: socket.id,
         assignment: nextProps.assignment
       });
       this.setState({ previewIndex: 0 });
+    } else if (!this.props.repo && nextProps.repo) {
+      // We just logged into the repository
+      this.props.getGraders(socket.id, this.props.params.assignmentId);
     }
   }
 
