@@ -32,7 +32,7 @@ if test ${#prt[@]} -ne 1; then
 else
   #Parse PA#.prt for output (We are looking for a line that starts with .output)
   awk -v regex="[A-z]*.output" '$0 ~ regex {seen = 1}
-     seen {print}' $prt > output.html
+     seen {print}' $prt > output.txt
 fi
 
 # This file helps keeps store all the students that turned in their assignment early for bonus
@@ -44,7 +44,7 @@ bonuslist=""
 
 repos=(*/)
 for dir in ${repos[@]}; do
-  cp input.txt output.html $prt $dir
+  cp input.txt output.txt $prt $dir
   cd $dir
 
   assignments=(*.c)
@@ -57,7 +57,7 @@ for dir in ${repos[@]}; do
 
   for assignment in ${assignments[@]}; do
     ed -s $assignment <<< $'H\ng/\r*$/s///\nwq' # dos2unix equivalent
-    cat $assignment > ${assignment:0:6}.html
+    cat $assignment > ${assignment:0:6}.txt
     # This is to make sure that their programs have the stdlib.h since students don't check that it
     # works on the linux machines and turn in without running it
     echo '#include <stdlib.h>' | cat - $assignment > temp && mv temp $assignment
@@ -147,7 +147,7 @@ for dir in ${repos[@]}; do
           errorCode=$?
           #Check if the program was terminated
           if [[ $errorCode -eq 142 ]] ; then
-            echo "<p class='alert alert-danger'>Program terminated because of infinite loop.\nPlease run their program manually or check their code.</p>" >> $fname.out.html
+            printf "<p class='alert alert-danger'>Program terminated because of infinite loop.\nPlease run their program manually or check their code.</p>" >> $fname.out.html
             rm error # Error is from infinite loop
             break
           elif [[ $errorCode -eq 143 ]] ; then

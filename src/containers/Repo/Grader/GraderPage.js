@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import { OutputContainer, GraderForm, SSHLoginForm } from 'components';
-import { isLoaded, load, save, destroy } from 'redux/modules/grade';
+import { isLoaded, load, save, update, destroy } from 'redux/modules/grade';
 import { asyncConnect } from 'redux-async-connect';
 
 @asyncConnect([{
@@ -21,7 +21,8 @@ import { asyncConnect } from 'redux-async-connect';
     error: state.grade.error
   }), {
     save,
-    destroy
+    destroy,
+    update
   }
 )
 export default class GraderPage extends Component {
@@ -31,6 +32,7 @@ export default class GraderPage extends Component {
     repo: PropTypes.object,
     save: PropTypes.func.isRequired,
     error: PropTypes.object,
+    update: PropTypes.func.isRequired,
     destroy: PropTypes.func.isRequired
   };
 
@@ -39,7 +41,9 @@ export default class GraderPage extends Component {
 
     const { students } = props;
     this.state = {
-      currentStudent: students && students.length ? students[0] : null
+      currentStudent: students && students.length ? students[0] : null,
+      studentIndex: 0,
+      showOutput: true
     };
   }
 
@@ -51,23 +55,17 @@ export default class GraderPage extends Component {
     event.preventDefault();
 
     const { students } = this.props;
-    const { studentId } = this.refs;
-
-    let studentIndex = 0;
-    for (; studentIndex < students.length; studentIndex++) {
-      if (students[studentIndex].studentId === studentId.value) {
-        break;
-      }
-    }
+    const studentIndex = this.refs.student.value;
 
     this.setState({
-      currentStudent: students[studentIndex]
+      currentStudent: students[studentIndex],
+      studentIndex
     });
   }
 
   handleSave = (grade, comment) => {
     const { assignmentId, repoId } = this.props.params;
-    const { currentStudent } = this.state;
+    const { currentStudent, studentIndex } = this.state;
 
     this.props.save({
       assignment: assignmentId,
@@ -76,12 +74,31 @@ export default class GraderPage extends Component {
       grade: grade,
       comment: comment
     });
+
+    this.props.update(studentIndex, {
+      ...currentStudent,
+      grade: grade,
+      comment: comment
+    });
+  }
+
+  handleClick = () => {
+    this.setState({
+      showOutput: !this.state.showOutput
+    });
+  }
+
+  handleSubmit = () => {
+    // TODO: This should email all the students and the professor
   }
 
   render() {
     const { assignmentId, repoId, graderId } = this.props.params;
-    const { currentStudent } = this.state;
+    const { currentStudent, showOutput } = this.state;
     const { error, repo, students } = this.props;
+
+    // Determine if we should show the student's code or output
+    const fileName = currentStudent && currentStudent.studentId + (showOutput ? '.out.html' : '.txt');
 
     return (
       <div>
@@ -103,7 +120,7 @@ export default class GraderPage extends Component {
                       multireducerKey="correctOutput"
                       assignmentId={ assignmentId }
                       graderId={ graderId }
-                      fileName="output.html"
+                      fileName="output.txt"
                     />
                   </div>
                 </div>
@@ -114,24 +131,33 @@ export default class GraderPage extends Component {
                       multireducerKey="studentOutput"
                       assignmentId={ assignmentId }
                       graderId={ graderId }
-                      fileName={ `${ currentStudent.studentId }.out.html`}
+                      fileName={ `${ fileName }`}
                     />
+                    <button className="btn btn-primary" onClick={this.handleClick}>
+                      { showOutput ? 'Display Code' : 'Display Output'}
+                    </button>
                   </div>
                 </div>
               </div>
               <div className="col-lg-5">
                 <select
-                  ref="studentId"
-                  style={{ margin: '20px 0 10px 0', fontSize: '20px' }}
+                  ref="student"
+                  style={{ margin: '20px 20px 10px 0', fontSize: '20px' }}
                   onChange={ this.handleChange }
                 >
                   {
-                    students.map((student) =>
-                      <option key={ student.studentId }>{ student.studentId }</option>
+                    students.map((student, studentIndex) =>
+                      <option key={ student.studentId } value={ studentIndex }>{ student.studentId }</option>
                     )
                   }
                 </select>
+
+                <button className="btn btn-primary" onClick={this.handleSubmit}>
+                  Submit Grades
+                </button>
+
                 <GraderForm
+                  studentId={ currentStudent.studentId }
                   bonus={ currentStudent.bonus }
                   comment={ currentStudent.comment }
                   grade={ currentStudent.grade }

@@ -38,29 +38,36 @@ export default class OutputContainer extends Component {
   }
 
   createMarkup = () => {
-    return { __html: this.props.output };
+    // TODO: Fix this where the assignments we display can expose a vulnerability in their output
+    return { __html: this.props.loading ? '' : this.props.output };
   }
 
   render() {
     const styles = require('./OutputContainer.scss');
-    const { fileName, viewHeight, error } = this.props;
+    const { fileName, viewHeight, error, loading } = this.props;
 
     return (
       <div className= { styles.outputContainer }>
         { error &&
           <h1 className="alert alert-danger">{ error.message } "{ fileName }"</h1>
         }
-        {
-          !error &&
+        { !error &&
           <div>
             <h4>
               { fileName.replace(/\.[^\.]+$/, '') }
             </h4>
-            <pre
-              style={{ height: `${ viewHeight }vh` }}
-              dangerouslySetInnerHTML={ this.createMarkup() }
-            >
-            </pre>
+            { fileName.endsWith('txt') &&
+              <pre
+                style={{ height: `${ viewHeight }vh` }}
+              >
+                  { !loading && this.props.output }
+              </pre> ||
+              <pre
+                style={{ height: `${ viewHeight }vh` }}
+                dangerouslySetInnerHTML={ this.createMarkup() }
+              >
+              </pre>
+            }
           </div>
         }
       </div>

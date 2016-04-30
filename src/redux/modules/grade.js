@@ -6,6 +6,8 @@ export const LOAD = 'pagrader/grade/LOAD';
 export const LOAD_SUCCESS = 'pagrader/grade/LOAD_SUCCESS';
 export const LOAD_FAIL = 'pagrader/grade/LOAD_FAIL';
 
+export const UPDATE = 'pagrader/grade/UPDATE';
+
 export const DESTROY = 'pagrader/grade/DESTROY';
 
 const initialState = {
@@ -50,6 +52,16 @@ export default function reducer(state = initialState, action = {}) {
         loading: false
       };
 
+    case UPDATE:
+      return {
+        ...state,
+        students: [
+          ...state.students.slice(0, action.studentIndex),
+          action.editedStudent,
+          ...state.students.slice(action.studentIndex + 1)
+        ]
+      };
+
     case DESTROY:
       return {
         ...state,
@@ -80,6 +92,14 @@ export function save(grades) {
     promise: (client) => client.post('/grade/save', {
       data: grades
     })
+  };
+}
+
+export function update(studentIndex, editedStudent) {
+  return {
+    type: UPDATE,
+    studentIndex,
+    editedStudent
   };
 }
 

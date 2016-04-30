@@ -30,13 +30,6 @@ if (secrets.sshTestInfo) {
     const SOCKET_ID = 'mockSocketId';
     after((done) => {
       // Clean up after finished with tests
-      for (const collection in mongoose.connection.collections) {
-        if (mongoose.connection.collections[collection]) {
-          mongoose.connection.collections[collection].remove(() => {});
-        }
-      }
-
-      // Clean up after finished with tests
       closeSSHConnection(SOCKET_ID);
       mongoose.disconnect();
       done();

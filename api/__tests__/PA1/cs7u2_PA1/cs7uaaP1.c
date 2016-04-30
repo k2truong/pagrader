@@ -2,9 +2,9 @@
  #define THIS_YEAR 2013
 
  main( void ) {
-  char  grade;                             /* Student's grade */
-  int   birthyear;                         /* Student's year of birth */
-  double GPA;                                         /* Add age and gpa */
+  char  grade;                                                /* Student's grade */
+  int   birthyear;                                            /* Student's year of birth */
+  double GPA;                                                 /* Add age and gpa */
   int   age;
 
   printf ("Please enter your grade: ");

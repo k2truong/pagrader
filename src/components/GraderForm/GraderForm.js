@@ -3,6 +3,7 @@ import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 export default class GraderForm extends Component {
   static propTypes = {
+    studentId: PropTypes.string,
     bonus: PropTypes.bool,
     comment: PropTypes.string,
     grade: PropTypes.string,
@@ -13,10 +14,20 @@ export default class GraderForm extends Component {
     super(props);
 
     this.state = {
-      bonus: props.bonus,
+      dirty: false,
       comment: props.comment,
       grade: props.grade
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    // New student so we should swap the comments and grades to new student
+    if (this.props.studentId !== nextProps.studentId) {
+      this.setState({
+        comment: nextProps.comment,
+        grade: nextProps.grade
+      });
+    }
   }
 
   getHelpTooltip() {
@@ -27,20 +38,41 @@ export default class GraderForm extends Component {
 
   handleChange = (event) => {
     event.preventDefault();
-    this.dirty = true;
+
+    this.setState({
+      dirty: true
+    });
+  }
+
+  handleGradeChange = (event) => {
+    this.setState({
+      grade: event.target.value
+    });
+  }
+
+  handleCommentChange = (event) => {
+    this.setState({
+      comment: event.target.value
+    });
   }
 
   handleBlur = (event) => {
     event.preventDefault();
-    if (this.dirty) {
-      const { grade, comment } = this.refs;
-      this.props.onSave(grade.value, comment.value);
-      this.dirty = false;
+
+    if (this.state.dirty) {
+      const { grade, comment } = this.state;
+
+      this.props.onSave(grade, comment);
+
+      this.setState({
+        dirty: false
+      });
     }
   }
 
   render() {
-    const { bonus, comment, grade } = this.props;
+    const { bonus } = this.props;
+    const { comment, grade } = this.state;
 
     return (
       <div>
@@ -58,12 +90,22 @@ export default class GraderForm extends Component {
           </div>
           <div className="form-group">
             <label>Grade:</label>
-            <input type="text" ref="grade" className="form-control" defaultValue={ grade } />
+            <input
+              type="text"
+              className="form-control"
+              onChange={ this.handleGradeChange }
+              value={ grade || '' }
+            />
           </div>
 
           <div className="form-group">
             <label>Comments:</label>
-            <textarea ref="comment" rows="20" className="form-control" defaultValue={ comment } />
+            <textarea
+              rows="20"
+              className="form-control"
+              onChange={ this.handleCommentChange }
+              value={ comment || '' }
+            />
           </div>
         </form>
       </div>
