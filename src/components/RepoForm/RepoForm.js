@@ -1,60 +1,49 @@
 import React, { Component, PropTypes } from 'react';
-import { connect } from 'react-redux';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { create } from 'redux/modules/repo';
-import { routeActions } from 'react-router-redux';
 
-@connect(
-  state => ({
-    repo: state.repo.repo,
-    error: state.repo.error
-  }), {
-    create,
-    pushState: routeActions.push
-  }
-)
 export default class RepoForm extends Component {
-
   static propTypes = {
-    create: PropTypes.func.isRequired,
+    onSubmit: PropTypes.func.isRequired,
     error: PropTypes.object,
-    repo: PropTypes.object,
-    pushState: PropTypes.func.isRequired
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (!this.props.repo && nextProps.repo) {
-      // Created new repo
-      this.props.pushState('/repo/' + nextProps.repo.username);
-    }
+    loading: PropTypes.bool
   }
 
   getHelpTooltip() {
-    return <Tooltip id="sshTooltip">This is the tutor account on ieng6 where the assignments are stored. (i.e cs11u5) </Tooltip>;
+    return (<Tooltip id="sshTooltip">
+      This is the tutor account on ieng6 where the assignments are stored. (i.e cs11u5)
+    </Tooltip>);
+  }
+
+  handleChange = (event) => {
+    this.setState({
+      [event.target.name]: event.target.value
+    });
   }
 
   handleSubmit = (event) => {
     event.preventDefault();
 
-    const { sshusername: username, sshpass: password, description } = this.refs;
-    this.props.create({
-      username: username.value,
-      password: password.value,
-      description: description.value
+    this.props.onSubmit({
+      ...this.state,
+      socketId: socket.id
     });
-    password.value = '';
   }
 
   render() {
-    const { error } = this.props;
+    const { error, loading } = this.props;
 
     return (
-      <form className="buffer-top" onSubmit={this.handleSubmit}>
+      <form className="buffer-top" onSubmit={ this.handleSubmit }>
         { error &&
           <div className="form-group">{ error.message }</div>
         }
         <div className="form-group input-group">
-            <input type="text" ref="sshusername" placeholder="SSH Username" className="form-control"/>
+            <input
+              type="text"
+              name="username"
+              placeholder="SSH Username"
+              className="form-control"
+              onChange={ this.handleChange } />
 
             <OverlayTrigger placement="bottom" overlay={this.getHelpTooltip()} >
               <span className="input-group-addon">
@@ -63,24 +52,45 @@ export default class RepoForm extends Component {
             </OverlayTrigger>
         </div>
         <div className="form-group">
-          <input type="password" ref="sshpass" placeholder="SSH Password" className="form-control"/>
+          <input
+            type="password"
+            name="password"
+            placeholder="SSH Password"
+            className="form-control"
+            onChange={ this.handleChange }/>
         </div>
         <div className="form-group">
           <input
-            type="text" ref="description" placeholder="Repository Name/Description" className="form-control"
+            type="text"
+            name="description"
+            placeholder="Repository Name/Description"
+            className="form-control"
+            onChange={ this.handleChange }
           />
         </div>
 
         <div className="form-group">
           <label htmlFor="language-c" className="radio-inline">
-            <input type="radio" id="language-c" name="language" value="c"/>C (CSE5)
+            <input
+              type="radio"
+              id="language-c"
+              name="language"
+              value="c"
+              onChange={ this.handleChange } />
+              C (CSE5)
           </label>
           <label htmlFor="language-java" className="radio-inline">
-            <input type="radio" id="language-java" name="language" value="java"/>Java (CSE11)
+            <input
+              type="radio"
+              id="language-java"
+              name="language"
+              value="java"
+              onChange={ this.handleChange } />
+            Java (CSE11)
           </label>
         </div>
 
-        <button className="btn btn-block btn-primary">
+        <button className={(loading ? 'disabled ' : '') + 'btn btn-block btn-primary'}>
           + New Repository
         </button>
       </form>

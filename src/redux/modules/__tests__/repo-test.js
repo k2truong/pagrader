@@ -22,8 +22,7 @@ describe('Repo Tests', () => {
           type: ducks.CONNECT
         })
       ).to.deep.equal({
-        loading: true,
-        repo: null
+        loading: true
       });
 
       expect(

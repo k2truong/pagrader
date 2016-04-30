@@ -1,0 +1,61 @@
+-rw-r----- 1 cs7uaa cs7u 1744 Jul  2 14:27 p1.c
+-rw-r----- 1 cs7uac cs7u 1706 Jul  4 09:40 p1.c
+-rw-r----- 1 cs7uad cs7u 2492 Jul  3 12:35 p1.c
+-rw-r----- 1 cs7uae cs7u 1656 Jul  2 14:25 p1.c
+-rw-r----- 1 cs7uag cs7u 1789 Jul  2 17:26 p1.c
+-rw-r----- 1 cs7uah cs7u 1858 Jul  2 15:43 p1.c
+-rw-r----- 1 cs7uak cs7u 1929 Jul  2 13:57 p1.c
+-rw-r----- 1 cs7ual cs7u 1891 Jul  2 14:37 p1.c
+-rw-r----- 1 cs7uam cs7u 2468 Jul  3 12:35 p1.c
+-rw-r----- 1 cs7uao cs7u 1343 Jul  3 19:42 p1.c
+-rw-r----- 1 cs7uap cs7u 1273 Jul  3 11:00 p1.c
+-rw-r----- 1 cs7uar cs7u 2918 Jul  2 12:55 p1.c
+-rw-r----- 1 cs7uat cs7u 1205 Jul  3 13:24 p1.c
+-rw-r----- 1 cs7uau cs7u 1723 Jul  2 14:33 p1.c
+-rw-r----- 1 cs7uay cs7u 1758 Jul  2 16:38 p1.c
+-rw-r----- 1 cs7uaz cs7u 2948 Jul  3 14:46 p1.c
+-rw-r----- 1 cs7ubb cs7u 1582 Jul  2 14:22 p1.c
+-rw-r----- 1 cs7ubc cs7u 1610 Jul  2 15:39 p1.c
+-rw-r----- 1 cs7ubd cs7u 2075 Jul  2 15:02 p1.c
+-rw-r----- 1 cs7ube cs7u 1389 Jul  4 20:19 p1.c
+-rw-r----- 1 cs7ubf cs7u 1697 Jul  3 13:33 p1.c
+-rw-r----- 1 cs7ubg cs7u 1780 Jul  2 16:38 p1.c
+-rw-r----- 1 cs7ubh cs7u 1630 Jul  3 11:42 p1.c
+-rw-r----- 1 cs7ubi cs7u 1953 Jul  2 16:02 p1.c
+-rw-r----- 1 cs7ubj cs7u 1549 Jul  2 13:39 p1.c
+-rw-r--r-- 1 cs7ubl cs7u 1767 Jul  4 19:38 p1.c
+-rw-r----- 1 cs7ubm cs7u 1397 Jul  2 18:10 p1.c
+-rw-r----- 1 cs7ubq cs7u 1883 Jul  3 14:38 p1.c
+-rw-r----- 1 cs7ubs cs7u 1836 Jul  3 11:10 p1.c
+-rw-r----- 1 cs7ubu cs7u 1000 Jul  3 15:08 p1.c
+-rw-r----- 1 cs7ucb cs7u 2026 Jul  3 12:53 P1.c
+-rw-r----- 1 cs7uce cs7u 1798 Jul  5 07:26 p1.c
+==================================================================
+pa1.input  CSE 5a Sum 2013
+------------------------------------------------------------------
+1)  B
+    1900
+    3.3
+
+2)  A
+    2000
+    2.2
+------------------------------------------------------------------
+==================
+pa1.output
+------------------
+1)  Enter your grade in the class:  B
+    Enter your birthyear:  1900
+    Enter your GPA (Grade Point Average):  3.3
+
+    I am 113 years old with a GPA of 3.300 and a class grade of B.
+    In 2014 I will be 114.  If I study hard, I will get an outstanding grade of B+.
+
+2)  Enter your grade in the class:  A
+    Enter your birthyear:  2000
+    Enter your GPA (Grade Point Average):  2.2
+
+    I am 13 years old with a GPA of 2.200 and a class grade of A.
+    In 2014 I will be 14.  If I study hard, I will get an awesome grade of A+.
+ =================
+

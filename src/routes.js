@@ -7,6 +7,8 @@ import {
     Login,
     Signup,
     Repo,
+    AssignmentPage,
+    GraderPage,
     NotFound,
   } from 'containers';
 
@@ -35,21 +37,23 @@ export default (store) => {
    * Please keep routes in alphabetical order
    */
   return (
-    <Route path="/" component={App}>
+    <Route path="/" component={ App }>
       { /* Home (main) route */ }
 
       { /* Routes requiring login */ }
-      <Route onEnter={requireLogin}>
-        <IndexRoute component={Home} />
-        <Route path="repo/:repoID" component={Repo} />
+      <Route onEnter={ requireLogin }>
+        <Route path="signup" component={ Signup } />
       </Route>
+      <IndexRoute component={ Home } />
+      <Route path="repo/:repoId" component={ Repo } />
+      <Route path="repo/:repoId/:assignmentId" component={ AssignmentPage } />
+      <Route path="repo/:repoId/:assignmentId/:graderId" component={ GraderPage } />
 
       { /* Routes */ }
-      <Route path="login" component={Login} />
-      <Route path="signup" component={Signup} />
+      <Route path="login" component={ Login } />
 
       { /* Catch all route */ }
-      <Route path="*" component={NotFound} status={404} />
+      <Route path="*" component={ NotFound } status={404} />
     </Route>
   );
 };

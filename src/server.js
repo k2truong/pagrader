@@ -95,7 +95,10 @@ app.use((req, res) => {
           </Provider>
         );
 
-        res.status(200);
+        const isNotFound = renderProps.routes.filter((route) => {
+          return route.status === 404;
+        }).length > 0;
+        res.status(isNotFound ? 404 : 200);
 
         global.navigator = {userAgent: req.headers['user-agent']};
 
