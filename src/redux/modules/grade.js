@@ -6,6 +6,10 @@ export const LOAD = 'pagrader/grade/LOAD';
 export const LOAD_SUCCESS = 'pagrader/grade/LOAD_SUCCESS';
 export const LOAD_FAIL = 'pagrader/grade/LOAD_FAIL';
 
+export const SUBMIT = 'pagrader/grade/SUBMIT';
+export const SUBMIT_SUCCESS = 'pagrader/grade/SUBMIT_SUCCESS';
+export const SUBMIT_FAIL = 'pagrader/grade/SUBMIT_FAIL';
+
 export const UPDATE = 'pagrader/grade/UPDATE';
 
 export const DESTROY = 'pagrader/grade/DESTROY';
@@ -50,6 +54,24 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         loaded: false,
         loading: false
+      };
+
+    case SUBMIT:
+      return {
+        ...state,
+        submitting: true
+      };
+    case SUBMIT_SUCCESS:
+      return {
+        ...state,
+        submitting: false,
+        submission: action.result
+
+      };
+    case SUBMIT_FAIL:
+      return {
+        ...state,
+        submitting: false
       };
 
     case UPDATE:
@@ -100,6 +122,15 @@ export function update(studentIndex, editedStudent) {
     type: UPDATE,
     studentIndex,
     editedStudent
+  };
+}
+
+export function submit(options) {
+  return {
+    types: [SUBMIT, SUBMIT_SUCCESS, SUBMIT_FAIL],
+    promise: (client) => client.post('/grade/submitGrades', {
+      data: options
+    })
   };
 }
 

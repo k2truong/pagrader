@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { save, getStudents, saveStudents } from '../actions/grade';
+import { save, getStudents, saveStudents, submitGrades } from '../actions/grade';
 import mongoose from 'mongoose';
 import secrets from '../config/secrets';
 import Grade from '../models/grade';
@@ -128,7 +128,6 @@ describe('Grade API', () => {
     }).catch(done);
   });
 
-
   const NEW_MOCK_STUDENTS = {
     assignmentId: 'PA1',
     repoId: 'cs7s10',
@@ -226,6 +225,19 @@ describe('Grade API', () => {
           done();
         });
       });
+    }).catch(done);
+  });
+
+  const MOCK_GRADER = {
+    graderId: 'cs7u2',
+    repoId: 'cs7s10',
+    assignmentId: 'PA1'
+  };
+  it('should email students and professor grades', (done) => {
+    submitGrades({
+      body: MOCK_GRADER
+    }).then(() => {
+      done();
     }).catch(done);
   });
 });
