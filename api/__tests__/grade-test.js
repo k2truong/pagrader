@@ -228,16 +228,19 @@ describe('Grade API', () => {
     }).catch(done);
   });
 
-  const MOCK_GRADER = {
-    graderId: 'cs7u2',
-    repoId: 'cs7s10',
-    assignmentId: 'PA1'
-  };
-  it('should email students and professor grades', (done) => {
-    submitGrades({
-      body: MOCK_GRADER
-    }).then(() => {
-      done();
-    }).catch(done);
-  });
+  // Only test sparkpost if we have it enabled
+  if (process.env.SPARKPOST_SANDBOX_DOMAIN) {
+    const MOCK_GRADER = {
+      graderId: 'cs7u2',
+      repoId: 'cs7s10',
+      assignmentId: 'PA1'
+    };
+    it('should email students and professor grades', (done) => {
+      submitGrades({
+        body: MOCK_GRADER
+      }).then(() => {
+        done();
+      }).catch(done);
+    });
+  }
 });
