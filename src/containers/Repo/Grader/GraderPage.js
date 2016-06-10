@@ -57,7 +57,7 @@ export default class GraderPage extends Component {
     event.preventDefault();
 
     const { students } = this.props;
-    const studentIndex = this.refs.student.value;
+    const studentIndex = +this.refs.student.value;
 
     this.setState({
       currentStudent: students[studentIndex],
