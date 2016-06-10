@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import { OutputContainer, GraderForm, SSHLoginForm } from 'components';
-import { isLoaded, load, save, update, destroy } from 'redux/modules/grade';
+import { isLoaded, load, save, submit, update, destroy } from 'redux/modules/grade';
 import { asyncConnect } from 'redux-async-connect';
 
 @asyncConnect([{
@@ -21,6 +21,7 @@ import { asyncConnect } from 'redux-async-connect';
     error: state.grade.error
   }), {
     save,
+    submit,
     destroy,
     update
   }
@@ -31,6 +32,7 @@ export default class GraderPage extends Component {
     students: PropTypes.array,
     repo: PropTypes.object,
     save: PropTypes.func.isRequired,
+    submit: PropTypes.func.isRequired,
     error: PropTypes.object,
     update: PropTypes.func.isRequired,
     destroy: PropTypes.func.isRequired
@@ -55,7 +57,7 @@ export default class GraderPage extends Component {
     event.preventDefault();
 
     const { students } = this.props;
-    const studentIndex = this.refs.student.value;
+    const studentIndex = +this.refs.student.value;
 
     this.setState({
       currentStudent: students[studentIndex],
@@ -89,7 +91,15 @@ export default class GraderPage extends Component {
   }
 
   handleSubmit = () => {
-    // TODO: This should email all the students and the professor
+    if (confirm('Are you sure you want to email the students and Susan these grades?')) {
+      const { assignmentId, repoId, graderId } = this.props.params;
+
+      this.props.submit({
+        assignmentId,
+        graderId,
+        repoId
+      });
+    }
   }
 
   render() {

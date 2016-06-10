@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { save, getStudents, saveStudents } from '../actions/grade';
+import { save, getStudents, saveStudents, submitGrades } from '../actions/grade';
 import mongoose from 'mongoose';
 import secrets from '../config/secrets';
 import Grade from '../models/grade';
@@ -128,7 +128,6 @@ describe('Grade API', () => {
     }).catch(done);
   });
 
-
   const NEW_MOCK_STUDENTS = {
     assignmentId: 'PA1',
     repoId: 'cs7s10',
@@ -228,4 +227,50 @@ describe('Grade API', () => {
       });
     }).catch(done);
   });
+
+  const NEW_MOCK_GRADE = {
+    assignment: 'PA1',
+    repo: 'cs7s10',
+    studentId: 'cs7uag',
+    grade: '10',
+    comment: 'This is a test\n2!\n'
+  };
+  it('should update grade', (done) => {
+    save({
+      body: NEW_MOCK_GRADE
+    }).then(() => {
+      Grade.findOne({
+        assignment: NEW_MOCK_GRADE.assignment,
+        repo: NEW_MOCK_GRADE.repo,
+        studentId: NEW_MOCK_GRADE.studentId
+      }, (err, res) => {
+        if (err) {
+          return done(err);
+        }
+
+        expect(res.grade).equal(NEW_MOCK_GRADE.grade);
+        expect(res.comment).equal(NEW_MOCK_GRADE.comment);
+        expect(res.studentId).equal(NEW_MOCK_GRADE.studentId);
+        expect(res.assignment).equal(NEW_MOCK_GRADE.assignment);
+        expect(res.repo).equal(NEW_MOCK_GRADE.repo);
+        done();
+      });
+    }).catch(done);
+  });
+
+  // Only test sparkpost if we have it enabled
+  if (process.env.SPARKPOST_SANDBOX_DOMAIN) {
+    const MOCK_GRADER = {
+      graderId: 'cs7u3',
+      repoId: 'cs7s10',
+      assignmentId: 'PA1'
+    };
+    it('should email students and professor grades', (done) => {
+      submitGrades({
+        body: MOCK_GRADER
+      }).then(() => {
+        done();
+      }).catch(done);
+    });
+  }
 });

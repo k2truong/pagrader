@@ -112,7 +112,12 @@ for dir in ${repos[@]}; do
         while [ $count -lt $inCount ]
         do
           if [ -e input ]; then
-             echo "<p class='alert alert-danger'>Program ended on last input... Restarting program...</p>" >> $fname.out.html
+            if [[ $errorCode -eq 121 ]]; then
+              # For some reason the script is terminating programs when it should keep going
+              echo "<p class='alert alert-danger'>Program terminated by grading script remote I/O error.\nPlease run their program manually or check their code.</p>" >> $fname.out.html
+            else
+              echo "<p class='alert alert-danger'>Program ended on last input... Restarting program...</p>" >> $fname.out.html
+            fi
           fi
 
           if [ -e "strace.fifo" ]; then
