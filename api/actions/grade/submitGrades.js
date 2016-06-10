@@ -3,16 +3,17 @@ import SparkPost from 'sparkpost';
 
 function sendEmail(sp, options) {
   return new Promise((resolve, reject) => {
-    const { body, subject, recipients } = options;
+    const { body, subject, recipients, attachments } = options;
     sp.transmissions.send({
       transmissionBody: {
         content: {
-          from: 'noreply@' + process.env.SPARKPOST_SANDBOX_DOMAIN, // 'testing@sparkpostbox.com'
+          from: 'csgrader@kennethtruong.com', // 'testing@sparkpostbox.com'
           subject: subject,
-          html: `<html><body><p>${ body }</p>` +
-            '<p>Please do not reply to this email.' +
-            'If you have any questions about your grade or comments please email Susan.' +
-            '</p></body></html>'
+          html: `<html><body><p>${ body }</p><br>` +
+            '<p>Please do not reply to this email. ' +
+            'If you have any questions about your grade or comments please email smarx@cs.ucsd.edu.' +
+            '</p></body></html>',
+          attachments
         },
         recipients
       }
@@ -42,9 +43,11 @@ export default function submitGrades(req) {
 
       const emailPromises = [];
       const sp = new SparkPost();
-      const recipients = [{address: 'aznflarekid@gmail.com'}];
       const gradedStudents = [];
       const ungradedStudents = [];
+      const isProd = process.env.NODE_ENV === 'production';
+      let scores = '';
+      let comments = '';
 
       grades.forEach((grade) => {
         if (grade.grade) {
@@ -55,20 +58,40 @@ export default function submitGrades(req) {
               subject: `${ assignmentId } Grade`,
               body: `<pre style="font-size: 12px;"><b>Grade:</b> ${ grade.grade }\n` +
                 `<b>Comments:</b> ${ grade.comment || '' }</pre>`,
-              recipients
+              recipients: [{
+                address: isProd ? `${ grade.studentId }@acsmail.ucsd.edu` : 'kenneth.e.truong@gmail.com'
+              }]
             })
           );
           gradedStudents.push(grade.studentId);
+          scores += grade.studentId + '\t' + grade.grade + (grade.bonus ? '*' : '') + '\n';
+          comments += grade.studentId + ': ' + grade.grade + '/10\n' +
+              'Comments: \n' + grade.comment + '\n\n';
         } else {
           ungradedStudents.push(grade.studentId);
         }
       });
 
       Promise.all(emailPromises).then(() => {
-        resolve({
-          graded: gradedStudents,
-          ungraded: ungradedStudents
-        });
+        sendEmail(sp, {
+          subject: `${ assignmentId } Grades`,
+          body: `<pre style="font-size: 12px;">Grades and comments attached</pre>`,
+          recipients: [{
+            address: isProd ? `smarx@cs.ucsd.edu` : 'kenneth.e.truong@gmail.com'
+          }],
+          'attachments': [
+            {
+              'type': 'text/plain',
+              'name': `${assignmentId} Grades.txt`,
+              'data': new Buffer(scores + '\n\n' + comments).toString('base64')
+            }
+          ]
+        }).then(() => {
+          resolve({
+            graded: gradedStudents,
+            ungraded: ungradedStudents
+          });
+        }).catch(reject);
       });
     });
   });
