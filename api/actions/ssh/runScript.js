@@ -34,8 +34,10 @@ export default function runScript(req) {
           command: `cd ${ repoPath };
             cp -r ${ path }/* .;
             cp ../*.sh .;
-            chmod 777 *.sh;
-            ed -s *.sh <<< $'H\ng/\r*$/s///\nwq';`
+            script=*.sh;
+            sed 's/\\r$//' $script > temp;
+            mv temp $script;
+            chmod 777 $script;`
         }
       }).then(() => {
         return command({

@@ -49,7 +49,7 @@ if (secrets.sshTestInfo) {
         command({
           body: {
             socketId: SOCKET_ID,
-            command: 'cd /home/linux/ieng6/cs7s/cs7s10; ls -d */'
+            command: 'ls -d */'
           }
         }).then(() => {
           done();
@@ -129,19 +129,27 @@ if (secrets.sshTestInfo) {
       repo: 'cs7s10',
       input: 'B\n1900\n3.3\n \nA\n2000\n2.2',
       name: 'PA1',
-      path: '/home/linux/ieng6/cs7s/cs7s10/GRADER/PA1',
       bonusDate: 'Jul 2 15:00'
     };
     it('should run script', (done) => {
-      runScript({
+      command({
         body: {
           socketId: SOCKET_ID,
-          assignment: MOCK_ASSIGNMENT
+          command: 'rm test.txt; pwd'
         }
-      }).then((stdout) => {
-        console.log(stdout);
-        done();
-      }).catch(done);
+      }).then((absolutePath) => {
+        MOCK_ASSIGNMENT.path = `${ absolutePath }/GRADER/PA1`;
+
+        runScript({
+          body: {
+            socketId: SOCKET_ID,
+            assignment: MOCK_ASSIGNMENT
+          }
+        }).then((stdout) => {
+          console.log(stdout);
+          done();
+        }).catch(done);
+      });
     });
 
     it('should get output', (done) => {

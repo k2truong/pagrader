@@ -114,7 +114,7 @@
       }
     },
     "win-test": {
-      "command": "mocha api/__tests__/grade-test.js --no-timeouts --compilers js:babel-core/register",
+      "command": "mocha api/__tests__/ssh-test.js --no-timeouts --compilers js:babel-core/register",
       "env": {
         "NODE_PATH": "./api",
         "APIPORT": 3030
