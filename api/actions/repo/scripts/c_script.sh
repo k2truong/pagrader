@@ -56,8 +56,8 @@ for dir in ${repos[@]}; do
   fi
 
   for assignment in ${assignments[@]}; do
-    ed -s $assignment <<< $'H\ng/\r*$/s///\nwq' # dos2unix equivalent
-    cat $assignment > ${assignment:0:6}.txt
+    sed 's/\r$//' $assignment > ${assignment:0:6}.txt
+
     # This is to make sure that their programs have the stdlib.h since students don't check that it
     # works on the linux machines and turn in without running it
     echo '#include <stdlib.h>' | cat - $assignment > temp && mv temp $assignment

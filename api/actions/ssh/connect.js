@@ -1,6 +1,7 @@
 import { Client } from 'ssh2';
 import { saveSSHConnection } from '../../ssh/connection';
 import command from './command';
+import { sshServerInfo } from '../../config/secrets.js';
 
 export default function connect(req) {
   return new Promise((resolve, reject) => {
@@ -30,7 +31,7 @@ export default function connect(req) {
         });
       }).catch(reject);
     }).connect({
-      host: 'ieng6.ucsd.edu',
+      host: sshServerInfo,
       port: 22,
       user: username,
       password: password

@@ -66,7 +66,7 @@ export default function submitGrades(req) {
           gradedStudents.push(grade.studentId);
           scores += grade.studentId + '\t' + grade.grade + (grade.bonus ? '*' : '') + '\n';
           comments += grade.studentId + ': ' + grade.grade + '/10\n' +
-              'Comments: \n' + grade.comment + '\n\n';
+              'Comments: \n' + (grade.comment || '') + '\n\n';
         } else {
           ungradedStudents.push(grade.studentId);
         }
