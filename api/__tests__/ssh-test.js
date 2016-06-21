@@ -135,11 +135,10 @@ if (secrets.sshTestInfo) {
       command({
         body: {
           socketId: SOCKET_ID,
-          command: 'rm test.txt; pwd'
+          command: 'rm .private_repo/test.txt; pwd'
         }
       }).then((absolutePath) => {
         MOCK_ASSIGNMENT.path = `${ absolutePath }/GRADER/PA1`;
-
         runScript({
           body: {
             socketId: SOCKET_ID,

@@ -1,13 +1,19 @@
 #!/bin/bash
-#Script for grading C programs (CSE 5)
-#Usage: ./c_script.sh <Optional Bonus Due Date>
-#Example: ./c_script.sh "01/24/2015 15:00"
+# Script for grading Java programs (CSE 8B/11)
+#
+# Author:   Kenneth Truong
+# Version:  2.0
+# Date:     06/19/16
+# Usage: ./java_script.sh <Optional Bonus Due Date>
+# Example: ./java_script.sh "01/24/2015 15:00"
+# Must have PA#.prt and input.txt within same folder
+
 red="\033[1;31m"
 green="\033[1;32m"
 blue="\033[1;34m"
 clear="\033[0m"
 
-#Enable bash's nullglob setting so that pattern *.c will expand to empty string if no such files
+#Enable bash's nullglob setting so that pattern *.P1 will expand to empty string if no such files
 shopt -s nullglob
 
 #Check if bonus date specified
@@ -19,7 +25,6 @@ else
   bonus=$(date +'%s' -d "01/24/1991 15:00:00.000")
 fi
 
-
 if [ ! -e "input.txt" ]; then
   echo -en "Error: Missing file: \"input.txt\""
   exit -1
@@ -30,8 +35,8 @@ if test ${#prt[@]} -ne 1; then
   echo -en "Error: Missing PA prt file: \"PA#.prt\""
   exit -1
 else
-  #Parse PA#.prt for output (We are looking for a line that starts with .output)
-  awk -v regex="[A-z]*.output" '$0 ~ regex {seen = 1}
+  #Parse PA#.prt for output (We are looking for a line that starts with output)
+  awk -v regex=".*output" '$0 ~ regex {seen = 1}
      seen {print}' $prt > output.txt
 fi
 
@@ -47,7 +52,7 @@ for dir in ${repos[@]}; do
   cp input.txt output.txt $prt $dir
   cd $dir
 
-  assignments=(*.c)
+  assignments=(*.P*)
   # Get filenames
   if test ${#assignments[@]} -le 0; then
     continue
@@ -56,19 +61,8 @@ for dir in ${repos[@]}; do
   fi
 
   for assignment in ${assignments[@]}; do
-    sed 's/\r$//' $assignment > ${assignment:0:6}.txt
+    sed 's/\r$//' $assignment > ${assignment%.*}.txt
   done
-
-  # Remove all previous output
-  if [ -e ${assignments[0]%.c}.out.html ] ; then
-     rm *.out.html
-  fi
-
-  # Convert C code to HTML using VIM for display
-  # for f in ${assignments[@]}; do
-  #   vim -f +"syn on" +"colorscheme ron" +"TOhtml" +"wq" +"q" code
-  #   mv code.html "${f%.c}.html"
-  # done
 
   counter=0
   #Parse PA.prt file
@@ -76,29 +70,28 @@ for dir in ${repos[@]}; do
   do
     [ -z "$LINE" ] && continue
     #Find PA's info in PA.prt file for bonus date
-    if [[ "$LINE" =~ "${assignments[${counter}]:0:6}" ]]
+    if [[ "$LINE" =~ "${assignments[${counter}]%.*}" ]]
     then
-      fname="${assignments[${counter}]:0:6}"
+      fname="${assignments[${counter}]%.*}"
 
       # Convert bonus date of PA to seconds
       # Get date Each line in PA.prt has the turn in date on the 6th 7th 8th column
       filetime=$(date --date="$(echo $LINE | cut -d' ' -f6,7,8)" +%s)
-
 
       # Check for extra credit
       if [ $filetime -le $bonus ]; then
         bonuslist="${bonuslist}${fname}\n"
       fi
 
+      #Untar and compile java file
+      tar -xvf ${assignments[${counter}]}
 
-      # This is to make sure that their programs have the stdlib.h since students don't check that it
-      # works on the linux machines and turn in without running it
-      echo '#include <stdlib.h>' | cat - ${assignments[${counter}]} > temp.c
+      #TODO!! Correct the file
+      javaFile=$(ls *.java | head -n 1)
+      javaFile="${javaFile%.java}"
 
-      # Compile and ignore warnings
-      gcc -Werror temp.c &> $fname.out.html
-      rm temp.c
-
+      #Compile
+      javac *.java &> $fname.out.html
       #Check if error
       if [ $? -ne 1 ]; then
         #Run program manually feeding input and printing out output in background process
@@ -149,7 +142,7 @@ for dir in ${repos[@]}; do
               elif $inputFlag ; then
                 killall -15 a.out > /dev/null 2>&1
               fi
-            done < strace.fifo 3< temp | strace -o strace.fifo -e read stdbuf -o0 perl -e "alarm 2; exec @ARGV" "./a.out"
+            done < strace.fifo 3< temp | strace -o strace.fifo -e read stdbuf -o0 java $javaFile &
           } >> $fname.out.html 2>>error
 
           errorCode=$?
@@ -190,7 +183,7 @@ for dir in ${repos[@]}; do
           rm input
         fi
 
-        rm temp a.out
+        rm temp *.java *.class
       else  #Error while compiling
         echo "<h2 class='alert alert-danger'>Compile Error!</h2>" | cat - $fname.out.html > temp && mv temp $fname.out.html
       fi
