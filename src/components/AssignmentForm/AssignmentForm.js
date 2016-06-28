@@ -99,7 +99,7 @@ export default class AssignmentForm extends Component {
           //   <textarea placeholder="PA Guide" rows="6" className="form-control" />
           // </div>
         }
-        <button className={(loading ? 'disabled ' : '') + 'btn btn-block btn-primary'}>
+        <button disabled={!(this.state.name && this.state.input)} className={(loading ? 'disabled ' : '') + 'btn btn-block btn-primary'}>
           { submitText }
         </button>
       </form>
