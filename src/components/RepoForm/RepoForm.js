@@ -5,7 +5,20 @@ export default class RepoForm extends Component {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
     error: PropTypes.object,
+    invalidFields: PropTypes.bool,
     loading: PropTypes.bool
+  }
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      invalidFields: true
+    };
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    nextState.invalidFields = !(nextState.username && nextState.password && nextState.description && nextState.language);
   }
 
   getHelpTooltip() {
@@ -90,7 +103,7 @@ export default class RepoForm extends Component {
           </label>
         </div>
 
-        <button className={(loading ? 'disabled ' : '') + 'btn btn-block btn-primary'}>
+        <button disabled={this.state.invalidFields} className={(loading ? 'disabled ' : '') + 'btn btn-block btn-primary'}>
           + New Repository
         </button>
       </form>
