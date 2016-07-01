@@ -5,7 +5,6 @@ export default class RepoForm extends Component {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
     error: PropTypes.object,
-    invalidFields: PropTypes.bool,
     loading: PropTypes.bool
   }
 
@@ -13,12 +12,11 @@ export default class RepoForm extends Component {
     super(props);
 
     this.state = {
-      invalidFields: true
+      username: '',
+      password: '',
+      description: '',
+      language: ''
     };
-  }
-
-  componentWillUpdate(nextProps, nextState) {
-    nextState.invalidFields = !(nextState.username && nextState.password && nextState.description && nextState.language);
   }
 
   getHelpTooltip() {
@@ -44,6 +42,8 @@ export default class RepoForm extends Component {
 
   render() {
     const { error, loading } = this.props;
+    const { username, password, description, language } = this.state;
+    const hasInvalidFields = !(username && password && description && language);
 
     return (
       <form className="buffer-top" onSubmit={ this.handleSubmit }>
@@ -58,7 +58,7 @@ export default class RepoForm extends Component {
               className="form-control"
               onChange={ this.handleChange } />
 
-            <OverlayTrigger placement="bottom" overlay={this.getHelpTooltip()} >
+            <OverlayTrigger placement="bottom" overlay={ this.getHelpTooltip() } >
               <span className="input-group-addon">
                   <i className="fa fa-question-circle" rel="help"></i>
               </span>
@@ -103,7 +103,7 @@ export default class RepoForm extends Component {
           </label>
         </div>
 
-        <button disabled={this.state.invalidFields} className={(loading ? 'disabled ' : '') + 'btn btn-block btn-primary'}>
+        <button disabled={ hasInvalidFields || loading } className="btn btn-block btn-primary">
           + New Repository
         </button>
       </form>
