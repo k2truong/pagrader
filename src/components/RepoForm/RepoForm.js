@@ -8,6 +8,17 @@ export default class RepoForm extends Component {
     loading: PropTypes.bool
   }
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      username: '',
+      password: '',
+      description: '',
+      language: ''
+    };
+  }
+
   getHelpTooltip() {
     return (<Tooltip id="sshTooltip">
       This is the tutor account on ieng6 where the assignments are stored. (i.e cs11u5)
@@ -31,6 +42,8 @@ export default class RepoForm extends Component {
 
   render() {
     const { error, loading } = this.props;
+    const { username, password, description, language } = this.state;
+    const hasInvalidFields = !(username && password && description && language);
 
     return (
       <form className="buffer-top" onSubmit={ this.handleSubmit }>
@@ -45,7 +58,7 @@ export default class RepoForm extends Component {
               className="form-control"
               onChange={ this.handleChange } />
 
-            <OverlayTrigger placement="bottom" overlay={this.getHelpTooltip()} >
+            <OverlayTrigger placement="bottom" overlay={ this.getHelpTooltip() } >
               <span className="input-group-addon">
                   <i className="fa fa-question-circle" rel="help"></i>
               </span>
@@ -90,7 +103,7 @@ export default class RepoForm extends Component {
           </label>
         </div>
 
-        <button className={(loading ? 'disabled ' : '') + 'btn btn-block btn-primary'}>
+        <button disabled={ hasInvalidFields || loading } className="btn btn-block btn-primary">
           + New Repository
         </button>
       </form>
