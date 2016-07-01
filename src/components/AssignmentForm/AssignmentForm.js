@@ -92,7 +92,7 @@ export default class AssignmentForm extends Component {
         </div>
         <div className="form-group">
           <DatePicker
-            defaultText={ bonusDate || 'Bonus Date' }
+            defaultText={ bonusDate || 'Bonus Date <Optional>' }
             onChange={ this.handleDateChange }
           />
         </div>
