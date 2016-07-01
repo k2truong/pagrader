@@ -57,4 +57,14 @@ Kill any processes that should not be running
 
 Please help contribute by submitting feedback, bugs, or pull requests!
 
+#### Plugins to install with Sublime IDE (Development)
+
+1. Package Control
+2. Babel
+3. Git
+4. Sass
+6. SublimeLinter
+7. SublimeLinter-contrib-eslint
+
+
 This uses a boilerplate from https://github.com/erikras/react-redux-universal-hot-example so please take a look here before contributing!
