@@ -30,7 +30,7 @@ function sendEmail(sp, options) {
 }
 
 export default function submitGrades(req) {
-  const { assignmentId, repoId, graderId } = req.body;
+  const { assignmentId, repoId, graderId, bbcEmail } = req.body;
   return new Promise((resolve, reject) => {
     Grade.find({
       assignment: assignmentId,
@@ -51,15 +51,22 @@ export default function submitGrades(req) {
 
       grades.forEach((grade) => {
         if (grade.grade) {
-          // TODO: Add recipients as students email instead of my testing account
-          // recipients.push(`${ grade.studentId }@acsweb.ucsd.edu`);
+          const studentEmail = isProd ? `${ grade.studentId }@acsmail.ucsd.edu` : 'kenneth.e.truong@gmail.com';
           emailPromises.push(
             sendEmail(sp, {
               subject: `${ assignmentId } Grade`,
               body: `<pre style="font-size: 12px;"><b>Grade:</b> ${ grade.grade }\n` +
                 `<b>Comments:</b> ${ grade.comment || '' }</pre>`,
               recipients: [{
-                address: isProd ? `${ grade.studentId }@acsmail.ucsd.edu` : 'kenneth.e.truong@gmail.com'
+                address: {
+                  email: studentEmail
+                }
+              },
+              {
+                address: {  // BCC
+                  email: bbcEmail,
+                  header_to: studentEmail
+                }
               }]
             })
           );

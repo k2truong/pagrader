@@ -5,7 +5,7 @@ import {
     App,
     Home,
     Login,
-    Signup,
+    // Signup,
     Repo,
     AssignmentPage,
     GraderPage,
@@ -42,7 +42,7 @@ export default (store) => {
 
       { /* Routes requiring login */ }
       <Route onEnter={ requireLogin }>
-        <Route path="signup" component={ Signup } />
+        { /* <Route path="signup" component={ Signup } /> */}
       </Route>
       <IndexRoute component={ Home } />
       <Route path="repo/:repoId" component={ Repo } />

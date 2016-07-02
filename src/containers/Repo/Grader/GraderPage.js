@@ -4,6 +4,7 @@ import Helmet from 'react-helmet';
 import { OutputContainer, GraderForm, SSHLoginForm } from 'components';
 import { isLoaded, load, save, submit, update, destroy } from 'redux/modules/grade';
 import { asyncConnect } from 'redux-async-connect';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 @asyncConnect([{
   promise: (options) => {
@@ -53,6 +54,13 @@ export default class GraderPage extends Component {
     this.props.destroy();
   }
 
+
+  getHelpTooltip() {
+    return (<Tooltip id="bbcEmail">
+      This is the email that should be bcc'd for a copy. (Hidden from the student)
+    </Tooltip>);
+  }
+
   handleChange = (event) => {
     event.preventDefault();
 
@@ -91,10 +99,14 @@ export default class GraderPage extends Component {
   }
 
   handleSubmit = () => {
-    if (confirm('Are you sure you want to email the students and Susan these grades?')) {
+    const bbcEmail = this.refs.bbcEmail.value;
+    if (!bbcEmail) {
+      alert('Please add an email to bcc to get a copy');
+    } else if (confirm('Are you sure you want to email the students and Susan these grades?')) {
       const { assignmentId, repoId, graderId } = this.props.params;
 
       this.props.submit({
+        bbcEmail,
         assignmentId,
         graderId,
         repoId
@@ -150,9 +162,22 @@ export default class GraderPage extends Component {
                 </div>
               </div>
               <div className="col-lg-5">
+
+                <div className="form-group" style={{ marginTop: '20px' }}>
+                  <label>BCC Email:</label>
+                  <div className="input-group">
+                    <input ref="bbcEmail" type="text" className="form-control"/>
+                    <OverlayTrigger placement="bottom" overlay={ this.getHelpTooltip() }>
+                      <span className="input-group-addon">
+                          <i className="fa fa-question-circle" rel="help"></i>
+                      </span>
+                    </OverlayTrigger>
+                  </div>
+                </div>
+
                 <select
                   ref="student"
-                  style={{ margin: '20px 20px 10px 0', fontSize: '20px' }}
+                  style={{ margin: '10px 20px 10px 0', fontSize: '20px' }}
                   onChange={ this.handleChange }
                 >
                   {

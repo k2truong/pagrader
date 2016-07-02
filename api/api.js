@@ -63,6 +63,7 @@ export default new Promise((resolve, reject) => {
 
         const {action, params} = mapUrl(actions, splittedUrlPath);
 
+        // TODO: Need to add authentication check here
         if (action) {
           action(req, params)
             .then((result) => {
