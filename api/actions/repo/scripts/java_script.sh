@@ -60,10 +60,6 @@ for dir in ${repos[@]}; do
     echo $dir
   fi
 
-  for assignment in ${assignments[@]}; do
-    sed 's/\r$//' $assignment > ${assignment%.*}.txt
-  done
-
   counter=0
   #Parse PA.prt file
   while read LINE
@@ -84,11 +80,13 @@ for dir in ${repos[@]}; do
       fi
 
       #Untar and compile java file
-      tar -xvf ${assignments[${counter}]}
+      tar -xvf ${assignments[${counter}]} > /dev/null
 
       #TODO!! Correct the file
       javaFile=$(ls *.java | head -n 1)
       javaFile="${javaFile%.java}"
+
+      sed 's/\r$//' *.java > ${assignments[${counter}]%.*}.txt
 
       #Compile
       javac *.java &> $fname.out.html
@@ -142,7 +140,7 @@ for dir in ${repos[@]}; do
               elif $inputFlag ; then
                 killall -15 a.out > /dev/null 2>&1
               fi
-            done < strace.fifo 3< temp | strace -o strace.fifo -e read stdbuf -o0 java $javaFile &
+            done < strace.fifo 3< temp | strace -o strace.fifo -f -e read stdbuf -o0 perl -e "alarm 2; exec @ARGV" "java ${javaFile}"
           } >> $fname.out.html 2>>error
 
           errorCode=$?

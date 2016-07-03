@@ -55,9 +55,15 @@ export default class GraderPage extends Component {
   }
 
 
-  getHelpTooltip() {
+  getEmailTooltip() {
     return (<Tooltip id="bbcEmail">
       This is the email that should be bcc'd for a copy. (Hidden from the student)
+    </Tooltip>);
+  }
+
+  getVerificationTooltip() {
+    return (<Tooltip id="verificationTooltip">
+      This will email only you and Susan for her to verify grades first.
     </Tooltip>);
   }
 
@@ -114,6 +120,23 @@ export default class GraderPage extends Component {
     }
   }
 
+  handleVerification = () => {
+    const bbcEmail = this.refs.bbcEmail.value;
+    if (!bbcEmail) {
+      alert('Please add an email to bcc to get a copy');
+    } else if (confirm('Are you sure you want to email the students and Susan these grades?')) {
+      const { assignmentId, repoId, graderId } = this.props.params;
+
+      this.props.submit({
+        verification: true,
+        bbcEmail,
+        assignmentId,
+        graderId,
+        repoId
+      });
+    }
+  }
+
   render() {
     const { assignmentId, repoId, graderId } = this.props.params;
     const { currentStudent, showOutput } = this.state;
@@ -155,7 +178,7 @@ export default class GraderPage extends Component {
                       graderId={ graderId }
                       fileName={ `${ fileName }`}
                     />
-                    <button className="btn btn-primary" onClick={this.handleClick}>
+                    <button className="btn btn-primary" onClick={ this.handleClick }>
                       { showOutput ? 'Display Code' : 'Display Output'}
                     </button>
                   </div>
@@ -163,11 +186,11 @@ export default class GraderPage extends Component {
               </div>
               <div className="col-lg-5">
 
-                <div className="form-group" style={{ marginTop: '20px' }}>
+                <div className="form-group" style={ { marginTop: '20px' } }>
                   <label>BCC Email:</label>
                   <div className="input-group">
                     <input ref="bbcEmail" type="text" className="form-control"/>
-                    <OverlayTrigger placement="bottom" overlay={ this.getHelpTooltip() }>
+                    <OverlayTrigger placement="bottom" overlay={ this.getEmailTooltip() }>
                       <span className="input-group-addon">
                           <i className="fa fa-question-circle" rel="help"></i>
                       </span>
@@ -177,7 +200,7 @@ export default class GraderPage extends Component {
 
                 <select
                   ref="student"
-                  style={{ margin: '10px 20px 10px 0', fontSize: '20px' }}
+                  style={ { margin: '10px 20px 10px', fontSize: '20px' } }
                   onChange={ this.handleChange }
                 >
                   {
@@ -187,9 +210,19 @@ export default class GraderPage extends Component {
                   }
                 </select>
 
-                <button className="btn btn-primary" onClick={this.handleSubmit}>
+                <button
+                  className="btn btn-primary"
+                  onClick={ this.handleSubmit }
+                  style={ { marginRight: 10 } }
+                >
                   Submit Grades
                 </button>
+
+                <OverlayTrigger placement="bottom" overlay={ this.getVerificationTooltip() }>
+                  <button className="btn btn-primary" onClick={ this.handleVerification }>
+                    Verify Grades
+                  </button>
+                </OverlayTrigger>
 
                 <GraderForm
                   studentId={ currentStudent.studentId }

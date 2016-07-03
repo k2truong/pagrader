@@ -30,7 +30,7 @@ function sendEmail(sp, options) {
 }
 
 export default function submitGrades(req) {
-  const { assignmentId, repoId, graderId, bbcEmail } = req.body;
+  const { assignmentId, repoId, graderId, bbcEmail, verification } = req.body;
   return new Promise((resolve, reject) => {
     Grade.find({
       assignment: assignmentId,
@@ -51,7 +51,7 @@ export default function submitGrades(req) {
 
       grades.forEach((grade) => {
         if (grade.grade) {
-          const studentEmail = isProd ? `${ grade.studentId }@acsmail.ucsd.edu` : 'kenneth.e.truong@gmail.com';
+          const studentEmail = isProd && !verification ? `${ grade.studentId }@acsmail.ucsd.edu` : bbcEmail;
           emailPromises.push(
             sendEmail(sp, {
               subject: `${ assignmentId } Grade`,
@@ -64,7 +64,7 @@ export default function submitGrades(req) {
               },
               {
                 address: {  // BCC
-                  email: bbcEmail,
+                  email: isProd ? bbcEmail : '',
                   header_to: studentEmail
                 }
               }]
@@ -79,12 +79,19 @@ export default function submitGrades(req) {
         }
       });
 
+      const profEmail = isProd ? `smarx@cs.ucsd.edu` : bbcEmail;
       Promise.all(emailPromises).then(() => {
         sendEmail(sp, {
-          subject: `${ assignmentId } Grades`,
+          subject: `${ assignmentId } ${ verification ? 'Verification' : '' } Grades`,
           body: `<pre style="font-size: 12px;">Grades and comments attached</pre>`,
           recipients: [{
-            address: isProd ? `smarx@cs.ucsd.edu` : 'kenneth.e.truong@gmail.com'
+            address: profEmail
+          },
+          {
+            address: {  // BCC
+              email: isProd ? bbcEmail : '',
+              header_to: profEmail
+            }
           }],
           'attachments': [
             {

@@ -18,9 +18,7 @@ else
      seen {print}' $prt > output.txt
 fi
 
-assignment="cs11uaa.P1"
-
-sed 's/\r$//' $assignment > ${assignment%.*}.txt
+assignment="cs11uac.P1"
 
 counter=0
 #Parse PA.prt file
@@ -37,12 +35,13 @@ do
     filetime=$(date --date="$(echo $LINE | cut -d' ' -f6,7,8)" +%s)
 
     #Untar and compile java file
-    tar -xvf ${assignment}
+    tar -xvf ${assignment} > /dev/null
 
     #TODO!! Correct the file
     javaFile=$(ls *.java | head -n 1)
     javaFile="${javaFile%.java}"
-    echo $javaFile
+
+    sed 's/\r$//' *.java > ${assignment%.*}.txt
 
     #Compile
     javac *.java &> $fname.out.html
@@ -96,7 +95,7 @@ do
             elif $inputFlag ; then
               killall -15 a.out > /dev/null 2>&1
             fi
-          done < strace.fifo 3< temp | strace -o strace.fifo -e read stdbuf -o0 perl -e "alarm 2; exec @ARGV" "java ${javaFile}"
+          done < strace.fifo 3< temp | strace -o strace.fifo -f -e read stdbuf -o0 perl -e "alarm 2; exec @ARGV" "java ${javaFile}"
         } >> $fname.out.html 2>>error
 
         errorCode=$?

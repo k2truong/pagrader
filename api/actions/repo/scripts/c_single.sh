@@ -97,7 +97,7 @@ do
             elif $inputFlag ; then
               killall -15 a.out > /dev/null 2>&1
             fi
-          done < strace.fifo 3< temp | strace -o strace.fifo -e read stdbuf -o0 perl -e "alarm 2; exec @ARGV" "./a.out"
+          done < strace.fifo 3< temp | strace -o strace.fifo -f -e read stdbuf -o0 perl -e "alarm 2; exec @ARGV" "./a.out"
         } >> $fname.out.html 2>>error
 
         errorCode=$?
