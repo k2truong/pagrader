@@ -124,7 +124,7 @@ export default class GraderPage extends Component {
     const bbcEmail = this.refs.bbcEmail.value;
     if (!bbcEmail) {
       alert('Please add an email to bcc to get a copy');
-    } else if (confirm('Are you sure you want to email the students and Susan these grades?')) {
+    } else if (confirm('Are you sure you want to email Susan these grades for verification?')) {
       const { assignmentId, repoId, graderId } = this.props.params;
 
       this.props.submit({
