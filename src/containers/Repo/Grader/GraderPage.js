@@ -200,7 +200,7 @@ export default class GraderPage extends Component {
 
                 <select
                   ref="student"
-                  style={ { margin: '10px 20px 10px', fontSize: '20px' } }
+                  style={ { fontSize: '20px' } }
                   onChange={ this.handleChange }
                 >
                   {
@@ -213,7 +213,7 @@ export default class GraderPage extends Component {
                 <button
                   className="btn btn-primary"
                   onClick={ this.handleSubmit }
-                  style={ { marginRight: 10 } }
+                  style={ { margin: '0 10px' } }
                 >
                   Submit Grades
                 </button>
