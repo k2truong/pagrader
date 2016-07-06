@@ -51,10 +51,10 @@ export default function submitGrades(req) {
 
       grades.forEach((grade) => {
         if (grade.grade) {
-          const studentEmail = isProd && !verification ? `${ grade.studentId }@acsmail.ucsd.edu` : bbcEmail;
+          const studentEmail = isProd && !verification ? `${ grade.studentId }@acsmail.ucsd.edu` : '';
           emailPromises.push(
             sendEmail(sp, {
-              subject: `${ assignmentId } Grade`,
+              subject: `${ graderId } Grade`,
               body: `<pre style="font-size: 12px;"><b>Grade:</b> ${ grade.grade }\n` +
                 `<b>Comments:</b> ${ grade.comment || '' }</pre>`,
               recipients: [{
@@ -64,7 +64,7 @@ export default function submitGrades(req) {
               },
               {
                 address: {  // BCC
-                  email: isProd ? bbcEmail : '',
+                  email: bbcEmail,
                   header_to: studentEmail
                 }
               }]
@@ -82,14 +82,14 @@ export default function submitGrades(req) {
       const profEmail = isProd ? `smarx@cs.ucsd.edu` : bbcEmail;
       Promise.all(emailPromises).then(() => {
         sendEmail(sp, {
-          subject: `${ assignmentId } ${ verification ? 'Verification' : '' } Grades`,
+          subject: `${ graderId } ${ verification ? 'Verification' : '' } Grades`,
           body: `<pre style="font-size: 12px;">Grades and comments attached</pre>`,
           recipients: [{
             address: profEmail
           },
           {
-            address: {  // BCC
-              email: isProd ? bbcEmail : '',
+            address: {
+              email: bbcEmail,
               header_to: profEmail
             }
           }],
