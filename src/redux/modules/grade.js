@@ -15,7 +15,8 @@ export const UPDATE = 'pagrader/grade/UPDATE';
 export const DESTROY = 'pagrader/grade/DESTROY';
 
 const initialState = {
-  loaded: false
+  loaded: false,
+  submitted: false
 };
 
 export default function reducer(state = initialState, action = {}) {
@@ -65,8 +66,8 @@ export default function reducer(state = initialState, action = {}) {
       return {
         ...state,
         submitting: false,
-        submission: action.result
-
+        submission: action.result,
+        submitted: true
       };
     case SUBMIT_FAIL:
       return {

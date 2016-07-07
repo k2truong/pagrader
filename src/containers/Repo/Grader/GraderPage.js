@@ -22,6 +22,7 @@ import { Modal, OverlayTrigger, Tooltip, Button } from 'react-bootstrap';
     students: state.grade.students,
     error: state.grade.error,
     submitting: state.grade.submitting,
+    submitted: state.grade.submitted,
     submission: state.grade.submission
   }), {
     save,
@@ -41,6 +42,7 @@ export default class GraderPage extends Component {
     update: PropTypes.func.isRequired,
     destroy: PropTypes.func.isRequired,
     submitting: PropTypes.bool,
+    submitted: PropTypes.bool,
     submission: PropTypes.object
   };
 
@@ -56,10 +58,15 @@ export default class GraderPage extends Component {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (!this.props.submitted && nextProps.submitted) {
+      this.setState({ showModal: true });
+    }
+  }
+
   componentWillUnmount() {
     this.props.destroy();
   }
-
 
   getEmailTooltip() {
     return (<Tooltip id="bbcEmail">
@@ -71,10 +78,6 @@ export default class GraderPage extends Component {
     return (<Tooltip id="verificationTooltip">
       This will email only you and Susan for her to verify grades first.
     </Tooltip>);
-  }
-
-  open = () => {
-    this.setState({ showModal: true });
   }
 
   close = () => {
@@ -131,7 +134,6 @@ export default class GraderPage extends Component {
         graderId,
         repoId
       });
-      this.setState({ showModal: true });
     }
   }
 
@@ -244,7 +246,11 @@ export default class GraderPage extends Component {
                   </button>
                 </OverlayTrigger>
 
-                <i className={ 'btn fa fa-refresh' + (submitting ? ' fa-pulse disabled' : '') } />
+                {
+                  submitting && <i className="fa fa-spinner fa-pulse" />
+                }
+
+                // <i className={ 'btn fa fa-refresh' + (submitting ? ' fa-pulse disabled' : '') } />
 
                 <Modal show={ showModal } onHide={ this.close }>
                   <Modal.Header closeButton>
@@ -253,7 +259,7 @@ export default class GraderPage extends Component {
                     Email successfully sent!
                   </Modal.Body>
                   <Modal.Footer>
-                    <Button className="btn btn-primary" onClick={this.close}>
+                    <Button className="btn btn-primary" onClick={ this.close }>
                       Close
                     </Button>
                   </Modal.Footer>
