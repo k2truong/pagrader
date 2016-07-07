@@ -63,7 +63,7 @@ export default class GraderPage extends Component {
 
   getEmailTooltip() {
     return (<Tooltip id="bbcEmail">
-      This is the email that should be bcc'd for a copy. (Hidden from the student)
+      This is the email that should be BCC for a copy. (Hidden from the student)
     </Tooltip>);
   }
 
@@ -149,6 +149,7 @@ export default class GraderPage extends Component {
         graderId,
         repoId
       });
+      this.setState({ showModal: true });
     }
   }
 
@@ -234,11 +235,22 @@ export default class GraderPage extends Component {
                   Submit Grades
                 </button>
 
+                <OverlayTrigger placement="bottom" overlay={ this.getVerificationTooltip() }>
+                  <button disabled={ submitting }
+                    className="btn btn-primary"
+                    onClick={ this.handleVerification }
+                  >
+                    Verify Grades
+                  </button>
+                </OverlayTrigger>
+
+                <i className={ 'btn fa fa-refresh' + (submitting ? ' fa-pulse disabled' : '') } />
+
                 <Modal show={ showModal } onHide={ this.close }>
                   <Modal.Header closeButton>
                   </Modal.Header>
                   <Modal.Body>
-                    You have successfully submitted grades.
+                    Email successfully sent!
                   </Modal.Body>
                   <Modal.Footer>
                     <Button className="btn btn-primary" onClick={this.close}>
@@ -246,14 +258,6 @@ export default class GraderPage extends Component {
                     </Button>
                   </Modal.Footer>
                 </Modal>
-
-                <OverlayTrigger placement="bottom" overlay={ this.getVerificationTooltip() }>
-                  <button className="btn btn-primary" onClick={ this.handleVerification }>
-                    Verify Grades
-                  </button>
-                </OverlayTrigger>
-
-                <i className={ 'btn fa fa-spinner' + (submitting ? ' fa-pulse disabled' : '') } />
 
                 <GraderForm
                   studentId={ currentStudent.studentId }
