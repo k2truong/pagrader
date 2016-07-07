@@ -4,7 +4,8 @@ import Helmet from 'react-helmet';
 import { OutputContainer, GraderForm, SSHLoginForm } from 'components';
 import { isLoaded, load, save, submit, update, destroy } from 'redux/modules/grade';
 import { asyncConnect } from 'redux-async-connect';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Modal, OverlayTrigger, Tooltip, Button } from 'react-bootstrap';
+
 
 @asyncConnect([{
   promise: (options) => {
@@ -19,7 +20,9 @@ import { OverlayTrigger, Tooltip } from 'react-bootstrap';
   state => ({
     repo: state.repo.repo,
     students: state.grade.students,
-    error: state.grade.error
+    error: state.grade.error,
+    submitting: state.grade.submitting,
+    submission: state.grade.submission
   }), {
     save,
     submit,
@@ -36,7 +39,9 @@ export default class GraderPage extends Component {
     submit: PropTypes.func.isRequired,
     error: PropTypes.object,
     update: PropTypes.func.isRequired,
-    destroy: PropTypes.func.isRequired
+    destroy: PropTypes.func.isRequired,
+    submitting: PropTypes.bool,
+    submission: PropTypes.object
   };
 
   constructor(props) {
@@ -44,6 +49,7 @@ export default class GraderPage extends Component {
 
     const { students } = props;
     this.state = {
+      showModal: false,
       currentStudent: students && students.length ? students[0] : null,
       studentIndex: 0,
       showOutput: true
@@ -65,6 +71,14 @@ export default class GraderPage extends Component {
     return (<Tooltip id="verificationTooltip">
       This will email only you and Susan for her to verify grades first.
     </Tooltip>);
+  }
+
+  open = () => {
+    this.setState({ showModal: true });
+  }
+
+  close = () => {
+    this.setState({ showModal: false });
   }
 
   handleChange = (event) => {
@@ -117,6 +131,7 @@ export default class GraderPage extends Component {
         graderId,
         repoId
       });
+      this.setState({ showModal: true });
     }
   }
 
@@ -139,8 +154,8 @@ export default class GraderPage extends Component {
 
   render() {
     const { assignmentId, repoId, graderId } = this.props.params;
-    const { currentStudent, showOutput } = this.state;
-    const { error, repo, students } = this.props;
+    const { currentStudent, showModal, showOutput } = this.state;
+    const { error, repo, students, submitting } = this.props;
 
     // Determine if we should show the student's code or output
     const fileName = currentStudent && currentStudent.studentId + (showOutput ? '.out.html' : '.txt');
@@ -211,6 +226,7 @@ export default class GraderPage extends Component {
                 </select>
 
                 <button
+                  disabled={ submitting }
                   className="btn btn-primary"
                   onClick={ this.handleSubmit }
                   style={ { margin: '0 10px' } }
@@ -218,11 +234,26 @@ export default class GraderPage extends Component {
                   Submit Grades
                 </button>
 
+                <Modal show={ showModal } onHide={ this.close }>
+                  <Modal.Header closeButton>
+                  </Modal.Header>
+                  <Modal.Body>
+                    You have successfully submitted grades.
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button className="btn btn-primary" onClick={this.close}>
+                      Close
+                    </Button>
+                  </Modal.Footer>
+                </Modal>
+
                 <OverlayTrigger placement="bottom" overlay={ this.getVerificationTooltip() }>
                   <button className="btn btn-primary" onClick={ this.handleVerification }>
                     Verify Grades
                   </button>
                 </OverlayTrigger>
+
+                <i className={ 'btn fa fa-spinner' + (submitting ? ' fa-pulse disabled' : '') } />
 
                 <GraderForm
                   studentId={ currentStudent.studentId }
