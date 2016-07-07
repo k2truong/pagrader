@@ -88,10 +88,7 @@ export default function submitGrades(req) {
             address: profEmail
           },
           {
-            address: {
-              email: bbcEmail,
-              header_to: profEmail
-            }
+            address: bbcEmail
           }],
           'attachments': [
             {
