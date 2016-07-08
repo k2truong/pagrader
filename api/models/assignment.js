@@ -4,6 +4,8 @@ const assignmentSchema = new mongoose.Schema({
   input: String,
   name: String,
   path: String,
+  paguide: String,
+  warnings: String,
   bonusDate: String,
   repo: String
 });

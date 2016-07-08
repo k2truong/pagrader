@@ -20,12 +20,14 @@ export default class AssignmentForm extends Component {
     super(props, context);
 
     if (props.assignment) {
-      const { bonusDate, input, path } = props.assignment;
+      const { bonusDate, input, path, paguide, warnings } = props.assignment;
 
       this.state = {
         bonusDate,
         input,
         selectedPath: path,
+        paguide,
+        warnings,
         path,
         name: path.match(/.*\/(.+?)\/?$/)[1]
       };
@@ -64,7 +66,7 @@ export default class AssignmentForm extends Component {
 
   render() {
     const { error, submitText, folderDisabled, loading } = this.props;
-    const { name, input, bonusDate, selectedPath } = this.state;
+    const { name, input, bonusDate, paguide, warnings, selectedPath } = this.state;
     const hasInvalidFields = !(name && input);
 
     return (
@@ -96,11 +98,26 @@ export default class AssignmentForm extends Component {
             onChange={ this.handleDateChange }
           />
         </div>
-        {
-          // <div className="form-group">
-          //   <textarea placeholder="PA Guide" rows="6" className="form-control" />
-          // </div>
-        }
+        <div className="form-group">
+          <textarea
+            name="paguide"
+            placeholder="PA Guide"
+            rows="6"
+            className="form-control"
+            defaultValue={ paguide }
+            onChange={ this.handleChange }
+          />
+        </div>
+        <div className="form-group">
+          <textarea
+            name="warnings"
+            placeholder="Warnings"
+            rows="6"
+            className="form-control"
+            defaultValue={ warnings }
+            onChange={ this.handleChange }
+          />
+        </div>
         <button disabled={ hasInvalidFields || loading } className="btn btn-block btn-primary">
           { submitText }
         </button>
