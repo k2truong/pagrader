@@ -2,7 +2,7 @@ import Assignment from '../../models/assignment';
 
 export default function create(req) {
   return new Promise((resolve, reject) => {
-    const { repo, name, input, bonusDate, path } = req.body;
+    const { repo, name, input, bonusDate, path, paguide, warnings } = req.body;
 
     Assignment.findOne({ name: req.body.name, repo: req.body.repo }, (err, res) => {
       if (err) {
@@ -18,11 +18,13 @@ export default function create(req) {
       }
 
       const newAssignment = new Assignment({
-        repo: repo,
-        name: name,
-        input: input,
-        bonusDate: bonusDate,
-        path: path
+        repo,
+        name,
+        input,
+        bonusDate,
+        path,
+        paguide,
+        warnings
       });
 
       newAssignment.save((saveErr, assignment) => {
