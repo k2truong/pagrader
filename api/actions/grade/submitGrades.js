@@ -56,6 +56,7 @@ export default function submitGrades(req) {
             sendEmail(sp, {
               subject: `${ graderId } Grade`,
               body: `<pre style="font-size: 12px;"><b>Grade:</b> ${ grade.grade }\n` +
+                (grade.bonus ? '+1 Early turn-in bonus\n' : '') +
                 `<b>Errors:</b>\n${ grade.errorList }\n` +
                 `<b>Comments:</b>\n${ grade.comment || '' }\n\n` +
                 `<b>*WARNINGS*</b>\n` +
@@ -77,6 +78,7 @@ export default function submitGrades(req) {
           gradedStudents.push(grade.studentId);
           scores += grade.studentId + '\t' + grade.grade + (grade.bonus ? '*' : '') + '\n';
           comments += grade.studentId + ': ' + grade.grade + '/10\n' +
+              (grade.bonus ? '+1 Early turn-in bonus\n' : '') +
               'Errors:\n' + (grade.errorList || '') + '\n' +
               'Comments:\n' + (grade.comment || '') + '\n\n' +
               `*WARNINGS*\n` +
