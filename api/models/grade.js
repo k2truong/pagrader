@@ -7,7 +7,8 @@ const gradeSchema = new mongoose.Schema({
   studentId: String,
   bonus: Boolean,
   grade: String,
-  comment: String
+  comment: String,
+  errorList: String
 });
 
 // create the model for users and expose it to our app

@@ -30,7 +30,7 @@ function sendEmail(sp, options) {
 }
 
 export default function submitGrades(req) {
-  const { assignmentId, repoId, graderId, bbcEmail, verification } = req.body;
+  const { assignmentId, repoId, graderId, bbcEmail, verification, warnings } = req.body;
   return new Promise((resolve, reject) => {
     Grade.find({
       assignment: assignmentId,
@@ -56,7 +56,12 @@ export default function submitGrades(req) {
             sendEmail(sp, {
               subject: `${ graderId } Grade`,
               body: `<pre style="font-size: 12px;"><b>Grade:</b> ${ grade.grade }\n` +
-                `<b>Comments:</b> ${ grade.comment || '' }</pre>`,
+                (grade.bonus ? '+1 Early turn-in bonus\n' : '') +
+                `<b>Errors:</b>\n${ grade.errorList }\n` +
+                `<b>Comments:</b>\n${ grade.comment || '' }\n\n` +
+                `<b>*WARNINGS*</b>\n` +
+                `Note: These warnings may not apply to you but keep them in mind for future reference.\n` +
+                `${ warnings }</pre>`,
               recipients: [{
                 address: {
                   email: studentEmail
@@ -73,7 +78,12 @@ export default function submitGrades(req) {
           gradedStudents.push(grade.studentId);
           scores += grade.studentId + '\t' + grade.grade + (grade.bonus ? '*' : '') + '\n';
           comments += grade.studentId + ': ' + grade.grade + '/10\n' +
-              'Comments: \n' + (grade.comment || '') + '\n\n';
+              (grade.bonus ? '+1 Early turn-in bonus\n' : '') +
+              'Errors:\n' + (grade.errorList || '') + '\n' +
+              'Comments:\n' + (grade.comment || '') + '\n\n' +
+              `*WARNINGS*\n` +
+              `Note: These warnings may not apply to you but keep them in mind for future reference.\n` +
+              `${ warnings }\n\n`;
         } else {
           ungradedStudents.push(grade.studentId);
         }

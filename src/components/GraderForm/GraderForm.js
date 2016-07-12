@@ -6,7 +6,9 @@ export default class GraderForm extends Component {
     studentId: PropTypes.string,
     bonus: PropTypes.bool,
     comment: PropTypes.string,
+    errors: PropTypes.string,
     grade: PropTypes.string,
+    paguide: PropTypes.string,
     onSave: PropTypes.func.isRequired
   };
 
@@ -16,7 +18,8 @@ export default class GraderForm extends Component {
     this.state = {
       dirty: false,
       comment: props.comment,
-      grade: props.grade
+      grade: props.grade,
+      errors: props.errors
     };
   }
 
@@ -25,7 +28,8 @@ export default class GraderForm extends Component {
     if (this.props.studentId !== nextProps.studentId) {
       this.setState({
         comment: nextProps.comment,
-        grade: nextProps.grade
+        grade: nextProps.grade,
+        errors: nextProps.errors
       });
     }
   }
@@ -44,15 +48,31 @@ export default class GraderForm extends Component {
     });
   }
 
-  handleGradeChange = (event) => {
+  handleInputChange = (event) => {
+    event.preventDefault();
+
     this.setState({
-      grade: event.target.value
+      [event.target.name]: event.target.value
     });
   }
 
-  handleCommentChange = (event) => {
+
+  addError = (event) => {
+    event.preventDefault();
+
+    const { grade, comment } = this.state;
+    const { errorList } = this.refs;
+    let { errors = '' } = this.state;
+
+    errors = errors.trim();
+    errors = `${ errors }${ errors ? '\n' : '' }${ errorList.value }`;
+
+    errorList.value = '';
+    this.props.onSave(grade, comment, errors);
+
     this.setState({
-      comment: event.target.value
+      dirty: false,
+      errors
     });
   }
 
@@ -60,9 +80,9 @@ export default class GraderForm extends Component {
     event.preventDefault();
 
     if (this.state.dirty) {
-      const { grade, comment } = this.state;
+      const { grade, comment, errors } = this.state;
 
-      this.props.onSave(grade, comment);
+      this.props.onSave(grade, comment, errors);
 
       this.setState({
         dirty: false
@@ -71,8 +91,8 @@ export default class GraderForm extends Component {
   }
 
   render() {
-    const { bonus } = this.props;
-    const { comment, grade } = this.state;
+    const { bonus, paguide } = this.props;
+    const { comment, grade, errors } = this.state;
 
     return (
       <div>
@@ -91,20 +111,51 @@ export default class GraderForm extends Component {
           <div className="form-group">
             <label>Grade:</label>
             <input
+              name="grade"
               type="text"
               className="form-control"
-              onChange={ this.handleGradeChange }
               value={ grade || '' }
+              onChange={ this.handleInputChange }
             />
           </div>
-
+          <div className="form-group">
+            <label>Errors:</label>
+            <div className="input-group form-group">
+              <input list="errors" className="form-control" ref="errorList"/>
+              <span className="input-group-btn">
+                <button
+                  className="btn btn-primary"
+                  style={ { marginLeft: '10px' } }
+                  onClick={ this.addError }
+                >
+                   <i className="fa fa-plus"></i>
+                </button>
+              </span>
+              <datalist id="errors">
+                {
+                  paguide && paguide.split('\n').map((error, idx) =>
+                    <option key={ idx } value={ error } />
+                  )
+                }
+              </datalist>
+            </div>
+            <textarea
+              rows="5"
+              name="errors"
+              className="form-control"
+              style={ { color: 'red' } }
+              value={ errors || '' }
+              onChange={ this.handleInputChange }
+            />
+          </div>
           <div className="form-group">
             <label>Comments:</label>
             <textarea
-              rows="20"
+              rows="10"
+              name="comment"
               className="form-control"
-              onChange={ this.handleCommentChange }
               value={ comment || '' }
+              onChange={ this.handleInputChange }
             />
           </div>
         </form>

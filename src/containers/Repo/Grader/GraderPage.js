@@ -2,7 +2,9 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import { OutputContainer, GraderForm, SSHLoginForm } from 'components';
-import { isLoaded, load, save, submit, update, destroy } from 'redux/modules/grade';
+import { isLoaded, load, save, submit, update, destroy, complete } from 'redux/modules/grade';
+import { isLoaded as isAssignmentLoaded, load as loadAssignment,
+         destroy as destroyAssignment } from 'redux/modules/assignment';
 import { asyncConnect } from 'redux-async-connect';
 import { Modal, OverlayTrigger, Tooltip, Button } from 'react-bootstrap';
 
@@ -15,19 +17,30 @@ import { Modal, OverlayTrigger, Tooltip, Button } from 'react-bootstrap';
       return dispatch(load(repoId, assignmentId, graderId));
     }
   }
+}, {
+  promise: (options) => {
+    const { store: { dispatch, getState }, params: { repoId, assignmentId } } = options;
+
+    if (!isAssignmentLoaded(getState())) {
+      return dispatch(loadAssignment(repoId, assignmentId));
+    }
+  }
 }])
 @connect(
   state => ({
     repo: state.repo.repo,
     students: state.grade.students,
-    error: state.grade.error,
     submitting: state.grade.submitting,
     submitted: state.grade.submitted,
-    submission: state.grade.submission
+    warnings: state.assignment.assignment.warnings,
+    paguide: state.assignment.assignment.paguide,
+    error: state.grade.error
   }), {
     save,
     submit,
     destroy,
+    complete,
+    destroyAssignment,
     update
   }
 )
@@ -39,11 +52,14 @@ export default class GraderPage extends Component {
     save: PropTypes.func.isRequired,
     submit: PropTypes.func.isRequired,
     error: PropTypes.object,
+    warnings: PropTypes.string,
+    paguide: PropTypes.string,
     update: PropTypes.func.isRequired,
     destroy: PropTypes.func.isRequired,
     submitting: PropTypes.bool,
     submitted: PropTypes.bool,
-    submission: PropTypes.object
+    complete: PropTypes.func.isRequired,
+    destroyAssignment: PropTypes.func.isRequired
   };
 
   constructor(props) {
@@ -66,6 +82,7 @@ export default class GraderPage extends Component {
 
   componentWillUnmount() {
     this.props.destroy();
+    this.props.destroyAssignment();
   }
 
   getEmailTooltip() {
@@ -82,6 +99,7 @@ export default class GraderPage extends Component {
 
   close = () => {
     this.setState({ showModal: false });
+    this.props.complete();
   }
 
   handleChange = (event) => {
@@ -92,11 +110,12 @@ export default class GraderPage extends Component {
 
     this.setState({
       currentStudent: students[studentIndex],
+      showOutput: true,
       studentIndex
     });
   }
 
-  handleSave = (grade, comment) => {
+  handleSave = (grade, comment, errors) => {
     const { assignmentId, repoId } = this.props.params;
     const { currentStudent, studentIndex } = this.state;
 
@@ -105,13 +124,15 @@ export default class GraderPage extends Component {
       repo: repoId,
       studentId: currentStudent.studentId,
       grade: grade,
-      comment: comment
+      comment: comment,
+      errorList: errors
     });
 
     this.props.update(studentIndex, {
       ...currentStudent,
       grade: grade,
-      comment: comment
+      comment: comment,
+      errorList: errors
     });
   }
 
@@ -142,14 +163,16 @@ export default class GraderPage extends Component {
     if (!bbcEmail) {
       alert('Please add an email to bcc to get a copy');
     } else if (confirm('Are you sure you want to email Susan these grades for verification?')) {
-      const { assignmentId, repoId, graderId } = this.props.params;
+      const { warnings, params } = this.props;
+      const { assignmentId, repoId, graderId } = params;
 
       this.props.submit({
         verification: true,
         bbcEmail,
         assignmentId,
         graderId,
-        repoId
+        repoId,
+        warnings
       });
       this.setState({ showModal: true });
     }
@@ -158,7 +181,7 @@ export default class GraderPage extends Component {
   render() {
     const { assignmentId, repoId, graderId } = this.props.params;
     const { currentStudent, showModal, showOutput } = this.state;
-    const { error, repo, students, submitting } = this.props;
+    const { error, repo, students, submitting, paguide } = this.props;
 
     // Determine if we should show the student's code or output
     const fileName = currentStudent && currentStudent.studentId + (showOutput ? '.out.html' : '.txt');
@@ -176,21 +199,24 @@ export default class GraderPage extends Component {
             repo && repo.username === repoId &&
             <div className="row">
               <div className="col-lg-7">
-                <div className="row">
-                  <div className="col-lg-12">
-                    <OutputContainer
-                      viewHeight="35"
-                      multireducerKey="correctOutput"
-                      assignmentId={ assignmentId }
-                      graderId={ graderId }
-                      fileName="output.txt"
-                    />
+                {
+                  showOutput &&
+                  <div className="row">
+                    <div className="col-lg-12">
+                      <OutputContainer
+                        viewHeight="30"
+                        multireducerKey="correctOutput"
+                        assignmentId={ assignmentId }
+                        graderId={ graderId }
+                        fileName="output.txt"
+                      />
+                    </div>
                   </div>
-                </div>
+                }
                 <div className="row">
                   <div className="col-lg-12">
                     <OutputContainer
-                      viewHeight="35"
+                      viewHeight={ showOutput ? '35' : '70' }
                       multireducerKey="studentOutput"
                       assignmentId={ assignmentId }
                       graderId={ graderId }
@@ -202,76 +228,81 @@ export default class GraderPage extends Component {
                   </div>
                 </div>
               </div>
-              <div className="col-lg-5">
 
-                <div className="form-group" style={ { marginTop: '20px' } }>
-                  <label>BCC Email:</label>
-                  <div className="input-group">
-                    <input ref="bbcEmail" type="text" className="form-control"/>
-                    <OverlayTrigger placement="bottom" overlay={ this.getEmailTooltip() }>
-                      <span className="input-group-addon">
-                          <i className="fa fa-question-circle" rel="help"></i>
-                      </span>
-                    </OverlayTrigger>
+              <div className="col-lg-5">
+                <div className="row">
+                  <div className="col-lg-12">
+                    <h3 style={ { fontWeight: 'bold', color: '#1371D1' } }>
+                      { currentStudent.studentId }
+                    </h3>
                   </div>
                 </div>
+                <div className="row">
+                  <div className="col-sm-10">
+                    <div className="form-group">
+                      <label>BCC Email:</label>
+                      <div className="input-group">
+                        <input ref="bbcEmail" type="text" className="form-control"/>
+                        <OverlayTrigger placement="bottom" overlay={ this.getEmailTooltip() }>
+                          <span className="input-group-addon">
+                              <i className="fa fa-question-circle" rel="help"></i>
+                          </span>
+                        </OverlayTrigger>
+                      </div>
+                    </div>
 
-                <select
-                  ref="student"
-                  style={ { fontSize: '20px' } }
-                  onChange={ this.handleChange }
-                >
-                  {
-                    students.map((student, studentIndex) =>
-                      <option key={ student.studentId } value={ studentIndex }>{ student.studentId }</option>
-                    )
-                  }
-                </select>
+                    <div className="form-group">
+                      <button
+                        className="btn btn-primary"
+                        onClick={ this.handleSubmit }
+                        style={ { marginRight: '10px' } }
+                      >
+                        Submit Grades
+                      </button>
+                      <OverlayTrigger placement="bottom" overlay={ this.getVerificationTooltip() }>
+                        <button className="btn btn-primary" onClick={ this.handleVerification }>
+                          Verify Grades
+                        </button>
+                      </OverlayTrigger>
+                    </div>
 
-                <button
-                  disabled={ submitting }
-                  className="btn btn-primary"
-                  onClick={ this.handleSubmit }
-                  style={ { margin: '0 10px' } }
-                >
-                  Submit Grades
-                </button>
+                    <EmailSuccessModal
+                      submitting={ submitting }
+                      showModal={ showModal }
+                      close={ this.close }
+                    />
 
-                <OverlayTrigger placement="bottom" overlay={ this.getVerificationTooltip() }>
-                  <button disabled={ submitting }
-                    className="btn btn-primary"
-                    onClick={ this.handleVerification }
-                  >
-                    Verify Grades
-                  </button>
-                </OverlayTrigger>
-
-                {
-                  submitting && <i className="fa fa-spinner fa-pulse" />
-                }
-
-                // <i className={ 'btn fa fa-refresh' + (submitting ? ' fa-pulse disabled' : '') } />
-
-                <Modal show={ showModal } onHide={ this.close }>
-                  <Modal.Header closeButton>
-                  </Modal.Header>
-                  <Modal.Body>
-                    Email successfully sent!
-                  </Modal.Body>
-                  <Modal.Footer>
-                    <Button className="btn btn-primary" onClick={ this.close }>
-                      Close
-                    </Button>
-                  </Modal.Footer>
-                </Modal>
-
-                <GraderForm
-                  studentId={ currentStudent.studentId }
-                  bonus={ currentStudent.bonus }
-                  comment={ currentStudent.comment }
-                  grade={ currentStudent.grade }
-                  onSave={ this.handleSave }
-                />
+                    <GraderForm
+                      paguide={ paguide }
+                      studentId={ currentStudent.studentId }
+                      bonus={ currentStudent.bonus }
+                      comment={ currentStudent.comment }
+                      errors={ currentStudent.errorList }
+                      grade={ currentStudent.grade }
+                      onSave={ this.handleSave }
+                    />
+                  </div>
+                  <div className="col-sm-2">
+                    <select
+                      ref="student"
+                      style={ { fontSize: '18px' } }
+                      size="10"
+                      defaultValue={ 0 }
+                      onChange={ this.handleChange }
+                    >
+                      {
+                        students.map((student, studentIndex) =>
+                          <option
+                            key={ studentIndex }
+                            value={ studentIndex }
+                          >
+                            { student.studentId }
+                          </option>
+                        )
+                      }
+                    </select>
+                  </div>
+                </div>
               </div>
             </div> ||
             <SSHLoginForm repoId={ repoId } />
@@ -280,4 +311,27 @@ export default class GraderPage extends Component {
       </div>
     );
   }
+}
+
+function EmailSuccessModal({submitting, showModal, close}) {
+  return (
+    <div>
+      {
+        submitting && <i className="fa fa-spinner fa-pulse" />
+      }
+
+      <Modal show={ showModal } onHide={ close }>
+        <Modal.Header closeButton>
+        </Modal.Header>
+        <Modal.Body>
+          Email successfully sent!
+        </Modal.Body>
+        <Modal.Footer>
+          <Button className="btn btn-primary" onClick={ close }>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </div>
+  );
 }
