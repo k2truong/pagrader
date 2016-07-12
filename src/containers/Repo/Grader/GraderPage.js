@@ -2,11 +2,12 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import { OutputContainer, GraderForm, SSHLoginForm } from 'components';
-import { isLoaded, load, save, submit, update, destroy } from 'redux/modules/grade';
+import { isLoaded, load, save, submit, update, destroy, complete } from 'redux/modules/grade';
 import { isLoaded as isAssignmentLoaded, load as loadAssignment,
          destroy as destroyAssignment } from 'redux/modules/assignment';
 import { asyncConnect } from 'redux-async-connect';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Modal, OverlayTrigger, Tooltip, Button } from 'react-bootstrap';
+
 
 @asyncConnect([{
   promise: (options) => {
@@ -29,6 +30,8 @@ import { OverlayTrigger, Tooltip } from 'react-bootstrap';
   state => ({
     repo: state.repo.repo,
     students: state.grade.students,
+    submitting: state.grade.submitting,
+    submitted: state.grade.submitted,
     warnings: state.assignment.assignment.warnings,
     paguide: state.assignment.assignment.paguide,
     error: state.grade.error
@@ -36,6 +39,7 @@ import { OverlayTrigger, Tooltip } from 'react-bootstrap';
     save,
     submit,
     destroy,
+    complete,
     destroyAssignment,
     update
   }
@@ -52,6 +56,9 @@ export default class GraderPage extends Component {
     paguide: PropTypes.string,
     update: PropTypes.func.isRequired,
     destroy: PropTypes.func.isRequired,
+    submitting: PropTypes.bool,
+    submitted: PropTypes.bool,
+    complete: PropTypes.func.isRequired,
     destroyAssignment: PropTypes.func.isRequired
   };
 
@@ -60,10 +67,17 @@ export default class GraderPage extends Component {
 
     const { students } = props;
     this.state = {
+      showModal: false,
       currentStudent: students && students.length ? students[0] : null,
       studentIndex: 0,
       showOutput: true
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (!this.props.submitted && nextProps.submitted) {
+      this.setState({ showModal: true });
+    }
   }
 
   componentWillUnmount() {
@@ -71,10 +85,9 @@ export default class GraderPage extends Component {
     this.props.destroyAssignment();
   }
 
-
   getEmailTooltip() {
     return (<Tooltip id="bbcEmail">
-      This is the email that should be bcc'd for a copy. (Hidden from the student)
+      This is the email that should be BCC for a copy. (Hidden from the student)
     </Tooltip>);
   }
 
@@ -82,6 +95,11 @@ export default class GraderPage extends Component {
     return (<Tooltip id="verificationTooltip">
       This will email only you and Susan for her to verify grades first.
     </Tooltip>);
+  }
+
+  close = () => {
+    this.setState({ showModal: false });
+    this.props.complete();
   }
 
   handleChange = (event) => {
@@ -156,13 +174,14 @@ export default class GraderPage extends Component {
         repoId,
         warnings
       });
+      this.setState({ showModal: true });
     }
   }
 
   render() {
     const { assignmentId, repoId, graderId } = this.props.params;
-    const { currentStudent, showOutput } = this.state;
-    const { error, repo, students, paguide } = this.props;
+    const { currentStudent, showModal, showOutput } = this.state;
+    const { error, repo, students, submitting, paguide } = this.props;
 
     // Determine if we should show the student's code or output
     const fileName = currentStudent && currentStudent.studentId + (showOutput ? '.out.html' : '.txt');
@@ -247,6 +266,12 @@ export default class GraderPage extends Component {
                       </OverlayTrigger>
                     </div>
 
+                    <EmailSuccessModal
+                      submitting={ submitting }
+                      showModal={ showModal }
+                      close={ this.close }
+                    />
+
                     <GraderForm
                       paguide={ paguide }
                       studentId={ currentStudent.studentId }
@@ -286,4 +311,27 @@ export default class GraderPage extends Component {
       </div>
     );
   }
+}
+
+function EmailSuccessModal({submitting, showModal, close}) {
+  return (
+    <div>
+      {
+        submitting && <i className="fa fa-spinner fa-pulse" />
+      }
+
+      <Modal show={ showModal } onHide={ close }>
+        <Modal.Header closeButton>
+        </Modal.Header>
+        <Modal.Body>
+          Email successfully sent!
+        </Modal.Body>
+        <Modal.Footer>
+          <Button className="btn btn-primary" onClick={ close }>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </div>
+  );
 }
