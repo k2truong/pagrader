@@ -30,7 +30,7 @@ function sendEmail(sp, options) {
 }
 
 export default function submitGrades(req) {
-  const { assignmentId, repoId, graderId, bbcEmail, verification, warnings } = req.body;
+  const { assignmentId, repoId, graderId, bbcEmail, verification, warnings = '' } = req.body;
   return new Promise((resolve, reject) => {
     Grade.find({
       assignment: assignmentId,

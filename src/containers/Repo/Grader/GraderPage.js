@@ -147,13 +147,15 @@ export default class GraderPage extends Component {
     if (!bbcEmail) {
       alert('Please add an email to bcc to get a copy');
     } else if (confirm('Are you sure you want to email the students and Susan these grades?')) {
-      const { assignmentId, repoId, graderId } = this.props.params;
+      const { warnings, params } = this.props;
+      const { assignmentId, repoId, graderId } = params;
 
       this.props.submit({
         bbcEmail,
         assignmentId,
         graderId,
-        repoId
+        repoId,
+        warnings
       });
     }
   }
