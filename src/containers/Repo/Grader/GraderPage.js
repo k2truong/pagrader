@@ -240,6 +240,7 @@ export default class GraderPage extends Component {
                 <option
                   key={ studentIndex }
                   value={ studentIndex }
+                  style={ { color: student.grade ? '' : 'red' } }
                 >
                   { student.studentId }
                 </option>

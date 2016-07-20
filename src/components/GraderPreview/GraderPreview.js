@@ -56,7 +56,10 @@ export default class GraderPreview extends Component {
             students &&
             students.map((student) => (
               <pre key={ student.studentId }>
-                <b>{ student.studentId }</b><br />
+                <b style={{ color: student.grade ? '' : 'red' }}>
+                  { student.studentId }
+                </b>
+                <br />
                 <b>Grade:</b> { student.grade }<br />
                 { student.bonus && '+1 Early turn-in bonus\n' }
                 <b>Errors:</b><br />
