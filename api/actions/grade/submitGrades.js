@@ -57,7 +57,7 @@ export default function submitGrades(req) {
               subject: `${ graderId } Grade`,
               body: `<pre style="font-size: 12px;"><b>Grade:</b> ${ grade.grade }\n` +
                 (grade.bonus ? '+1 Early turn-in bonus\n' : '') +
-                `<b>Errors:</b>\n${ grade.errorList }\n` +
+                `<b>Errors:</b>\n${ grade.errorList || '' }\n` +
                 `<b>Comments:</b>\n${ grade.comment || '' }\n\n` +
                 `<b>*WARNINGS*</b>\n` +
                 `Note: These warnings may not apply to you but keep them in mind for future reference.\n` +

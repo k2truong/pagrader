@@ -1,13 +1,12 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
-import { OutputContainer, GraderForm, SSHLoginForm } from 'components';
+
+import { OutputContainer, GraderForm, SSHLoginForm, GraderPreview } from 'components';
 import { isLoaded, load, save, submit, update, destroy, complete } from 'redux/modules/grade';
 import { isLoaded as isAssignmentLoaded, load as loadAssignment,
          destroy as destroyAssignment } from 'redux/modules/assignment';
 import { asyncConnect } from 'redux-async-connect';
-import { Modal, OverlayTrigger, Tooltip, Button } from 'react-bootstrap';
-
 
 @asyncConnect([{
   promise: (options) => {
@@ -67,7 +66,7 @@ export default class GraderPage extends Component {
 
     const { students } = props;
     this.state = {
-      showModal: false,
+      showPreview: false,
       currentStudent: students && students.length ? students[0] : null,
       studentIndex: 0,
       showOutput: true
@@ -76,7 +75,8 @@ export default class GraderPage extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (!this.props.submitted && nextProps.submitted) {
-      this.setState({ showModal: true });
+      alert('Emails successfully sent!');
+      this.props.complete();
     }
   }
 
@@ -85,21 +85,8 @@ export default class GraderPage extends Component {
     this.props.destroyAssignment();
   }
 
-  getEmailTooltip() {
-    return (<Tooltip id="bbcEmail">
-      This is the email that should be BCC for a copy. (Hidden from the student)
-    </Tooltip>);
-  }
-
-  getVerificationTooltip() {
-    return (<Tooltip id="verificationTooltip">
-      This will email only you and Susan for her to verify grades first.
-    </Tooltip>);
-  }
-
-  close = () => {
-    this.setState({ showModal: false });
-    this.props.complete();
+  handleClose = () => {
+    this.setState({ showPreview: false });
   }
 
   handleChange = (event) => {
@@ -112,6 +99,14 @@ export default class GraderPage extends Component {
       currentStudent: students[studentIndex],
       showOutput: true,
       studentIndex
+    });
+  }
+
+  handlePreview = (event) => {
+    event.preventDefault();
+
+    this.setState({
+      showPreview: true
     });
   }
 
@@ -142,51 +137,156 @@ export default class GraderPage extends Component {
     });
   }
 
-  handleSubmit = () => {
-    const bbcEmail = this.refs.bbcEmail.value;
-    if (!bbcEmail) {
-      alert('Please add an email to bcc to get a copy');
-    } else if (confirm('Are you sure you want to email the students and Susan these grades?')) {
-      const { warnings, params } = this.props;
-      const { assignmentId, repoId, graderId } = params;
+  handleSubmit = (verification, bbcEmail) => {
+    const { warnings, params, students } = this.props;
+    const { assignmentId, repoId, graderId } = params;
 
+    const missingStudents = students && students.reduce((currentVal, student) => {
+      if (student.grade) {
+        return currentVal;
+      }
+      return (currentVal ? currentVal + ', ' : '') + student.studentId;
+    }, '');
+
+    if (!missingStudents) {
       this.props.submit({
+        verification,
         bbcEmail,
         assignmentId,
         graderId,
         repoId,
         warnings
       });
+    } else {
+      alert(`Please finish grading all students before submitting!\n\n` +
+        `Missing students:\n${ missingStudents }`);
     }
   }
 
-  handleVerification = () => {
-    const bbcEmail = this.refs.bbcEmail.value;
-    if (!bbcEmail) {
-      alert('Please add an email to bcc to get a copy');
-    } else if (confirm('Are you sure you want to email Susan these grades for verification?')) {
-      const { warnings, params } = this.props;
-      const { assignmentId, repoId, graderId } = params;
-
-      this.props.submit({
-        verification: true,
-        bbcEmail,
-        assignmentId,
-        graderId,
-        repoId,
-        warnings
-      });
-      this.setState({ showModal: true });
-    }
-  }
-
-  render() {
-    const { assignmentId, repoId, graderId } = this.props.params;
-    const { currentStudent, showModal, showOutput } = this.state;
-    const { error, repo, students, submitting, paguide } = this.props;
+  renderOutput() {
+    const { assignmentId, graderId } = this.props.params;
+    const { currentStudent, showOutput } = this.state;
 
     // Determine if we should show the student's code or output
     const fileName = currentStudent && currentStudent.studentId + (showOutput ? '.out.html' : '.txt');
+
+    return (
+      <div className="col-lg-7">
+        {
+          showOutput &&
+          <div className="row">
+            <div className="col-lg-12">
+              <OutputContainer
+                viewHeight="30"
+                multireducerKey="correctOutput"
+                assignmentId={ assignmentId }
+                graderId={ graderId }
+                fileName="output.txt"
+              />
+            </div>
+          </div>
+        }
+        <div className="row">
+          <div className="col-lg-12">
+            <OutputContainer
+              viewHeight={ showOutput ? '35' : '70' }
+              multireducerKey="studentOutput"
+              assignmentId={ assignmentId }
+              graderId={ graderId }
+              fileName={ `${ fileName }`}
+            />
+            <button className="btn btn-primary" onClick={ this.handleClick }>
+              { showOutput ? 'Display Code' : 'Display Output'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  renderForm() {
+    const { currentStudent } = this.state;
+    const { students, paguide } = this.props;
+
+    return (
+      <div className="row">
+        <div className="col-sm-10">
+          <GraderForm
+            paguide={ paguide }
+            studentId={ currentStudent.studentId }
+            bonus={ currentStudent.bonus }
+            comment={ currentStudent.comment }
+            errors={ currentStudent.errorList }
+            grade={ currentStudent.grade }
+            onSave={ this.handleSave }
+          />
+          <button
+            className="btn btn-primary"
+            onClick={ this.handlePreview }
+          >
+            Submit / Preview
+          </button>
+        </div>
+        <div className="col-sm-2">
+          <select
+            ref="student"
+            style={ { fontSize: '18px' } }
+            size="10"
+            defaultValue={ 0 }
+            onChange={ this.handleChange }
+          >
+            {
+              students.map((student, studentIndex) =>
+                <option
+                  key={ studentIndex }
+                  value={ studentIndex }
+                >
+                  { student.studentId }
+                </option>
+              )
+            }
+          </select>
+        </div>
+      </div>
+    );
+  }
+
+  renderPage() {
+    const { currentStudent, showPreview } = this.state;
+    const { students, warnings, submitting, submitted } = this.props;
+
+    return (
+      <div className="row">
+        { this.renderOutput() }
+
+        <div className="col-lg-5">
+          <div className="row">
+            <div className="col-lg-12">
+              <h3 style={ { fontWeight: 'bold', color: '#1371D1' } }>
+                { currentStudent.studentId }
+              </h3>
+            </div>
+          </div>
+          { this.renderForm() }
+        </div>
+        {
+          showPreview &&
+          <GraderPreview
+            students={ students }
+            warnings={ warnings }
+            submitting={ submitting }
+            submitted={ submitted }
+            onClose={ this.handleClose }
+            onSubmit={ this.handleSubmit }
+          />
+        }
+      </div>
+    );
+  }
+
+  render() {
+    const { assignmentId, repoId } = this.props.params;
+    const { error, repo } = this.props;
 
     return (
       <div>
@@ -199,115 +299,8 @@ export default class GraderPage extends Component {
             </h1> ||
             // TODO: Need to add 404 page here if there is no currentStudent
             repo && repo.username === repoId &&
-            <div className="row">
-              <div className="col-lg-7">
-                {
-                  showOutput &&
-                  <div className="row">
-                    <div className="col-lg-12">
-                      <OutputContainer
-                        viewHeight="30"
-                        multireducerKey="correctOutput"
-                        assignmentId={ assignmentId }
-                        graderId={ graderId }
-                        fileName="output.txt"
-                      />
-                    </div>
-                  </div>
-                }
-                <div className="row">
-                  <div className="col-lg-12">
-                    <OutputContainer
-                      viewHeight={ showOutput ? '35' : '70' }
-                      multireducerKey="studentOutput"
-                      assignmentId={ assignmentId }
-                      graderId={ graderId }
-                      fileName={ `${ fileName }`}
-                    />
-                    <button className="btn btn-primary" onClick={ this.handleClick }>
-                      { showOutput ? 'Display Code' : 'Display Output'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-5">
-                <div className="row">
-                  <div className="col-lg-12">
-                    <h3 style={ { fontWeight: 'bold', color: '#1371D1' } }>
-                      { currentStudent.studentId }
-                    </h3>
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col-sm-10">
-                    <div className="form-group">
-                      <label>BCC Email:</label>
-                      <div className="input-group">
-                        <input ref="bbcEmail" type="text" className="form-control"/>
-                        <OverlayTrigger placement="bottom" overlay={ this.getEmailTooltip() }>
-                          <span className="input-group-addon">
-                              <i className="fa fa-question-circle" rel="help"></i>
-                          </span>
-                        </OverlayTrigger>
-                      </div>
-                    </div>
-
-                    <div className="form-group">
-                      <button
-                        className="btn btn-primary"
-                        onClick={ this.handleSubmit }
-                        style={ { marginRight: '10px' } }
-                      >
-                        Submit Grades
-                      </button>
-                      <OverlayTrigger placement="bottom" overlay={ this.getVerificationTooltip() }>
-                        <button className="btn btn-primary" onClick={ this.handleVerification }>
-                          Verify Grades
-                        </button>
-                      </OverlayTrigger>
-                    </div>
-
-                    <EmailSuccessModal
-                      submitting={ submitting }
-                      showModal={ showModal }
-                      close={ this.close }
-                    />
-
-                    <GraderForm
-                      paguide={ paguide }
-                      studentId={ currentStudent.studentId }
-                      bonus={ currentStudent.bonus }
-                      comment={ currentStudent.comment }
-                      errors={ currentStudent.errorList }
-                      grade={ currentStudent.grade }
-                      onSave={ this.handleSave }
-                    />
-                  </div>
-                  <div className="col-sm-2">
-                    <select
-                      ref="student"
-                      style={ { fontSize: '18px' } }
-                      size="10"
-                      defaultValue={ 0 }
-                      onChange={ this.handleChange }
-                    >
-                      {
-                        students.map((student, studentIndex) =>
-                          <option
-                            key={ studentIndex }
-                            value={ studentIndex }
-                          >
-                            { student.studentId }
-                          </option>
-                        )
-                      }
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div> ||
-            <SSHLoginForm repoId={ repoId } />
+            this.renderPage()
+            || <SSHLoginForm repoId={ repoId } />
           }
         </div>
       </div>
@@ -315,25 +308,3 @@ export default class GraderPage extends Component {
   }
 }
 
-function EmailSuccessModal({submitting, showModal, close}) {
-  return (
-    <div>
-      {
-        submitting && <i className="fa fa-spinner fa-pulse" />
-      }
-
-      <Modal show={ showModal } onHide={ close }>
-        <Modal.Header closeButton>
-        </Modal.Header>
-        <Modal.Body>
-          Email successfully sent!
-        </Modal.Body>
-        <Modal.Footer>
-          <Button className="btn btn-primary" onClick={ close }>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </div>
-  );
-}
