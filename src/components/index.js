@@ -13,4 +13,5 @@ export FolderSelector from './FolderSelector/FolderSelector';
 export SSHLoginForm from './SSH/LoginForm';
 export OutputContainer from './OutputContainer/OutputContainer';
 export GraderForm from './GraderForm/GraderForm';
+export GraderPreview from './GraderPreview/GraderPreview';
 export GraderList from './GraderList/GraderList';
