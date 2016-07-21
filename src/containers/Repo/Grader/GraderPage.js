@@ -164,8 +164,9 @@ export default class GraderPage extends Component {
   }
 
   renderOutput() {
-    const { assignmentId, graderId } = this.props.params;
     const { currentStudent, showOutput } = this.state;
+    const { params, repo: { language } } = this.props;
+    const { assignmentId, graderId } = params;
 
     // Determine if we should show the student's code or output
     const fileName = currentStudent && currentStudent.studentId + (showOutput ? '.out.html' : '.txt');
@@ -194,6 +195,7 @@ export default class GraderPage extends Component {
               assignmentId={ assignmentId }
               graderId={ graderId }
               fileName={ `${ fileName }`}
+              language={ showOutput ? '' : language }
             />
             <button className="btn btn-primary" onClick={ this.handleClick }>
               { showOutput ? 'Display Code' : 'Display Output'}

@@ -40,8 +40,9 @@ export default function create(req) {
       }
 
       const newRepo = new Repo({
-        username: username,
-        description: description
+        username,
+        description,
+        language
       });
       connect(req).then((connRes) => {
         const dirPath = path.join(__dirname, `./scripts/${language}_script.sh`);

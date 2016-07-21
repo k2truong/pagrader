@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import { PrismCode } from 'react-prism';
 import { connectMultireducer } from 'multireducer';
 import { load } from 'redux/modules/output';
 
@@ -17,6 +18,7 @@ export default class OutputContainer extends Component {
     load: PropTypes.func.isRequired,
     output: PropTypes.string,
     loading: PropTypes.bool,
+    language: PropTypes.string,
     error: PropTypes.object,
     viewHeight: PropTypes.string.isRequired,
     assignmentId: PropTypes.string.isRequired,
@@ -44,7 +46,7 @@ export default class OutputContainer extends Component {
 
   render() {
     const styles = require('./OutputContainer.scss');
-    const { fileName, viewHeight, error, loading } = this.props;
+    const { fileName, viewHeight, error, loading, language } = this.props;
 
     return (
       <div className= { styles.outputContainer }>
@@ -57,11 +59,19 @@ export default class OutputContainer extends Component {
               { fileName.replace(/\.[^\.]+$/, '') }
             </h4>
             { fileName.endsWith('txt') &&
-              <pre
-                style={{ height: `${ viewHeight }vh` }}
-              >
-                  { !loading && this.props.output }
-              </pre> ||
+              (
+                language &&
+                <pre className="line-numbers" style={{ height: `${ viewHeight }vh` }}>
+                  <PrismCode className={ `language-${language}` }>
+                    { !loading && this.props.output }
+                  </PrismCode>
+                </pre>
+                ||
+                <pre style={{ height: `${ viewHeight }vh` }}>
+                    { !loading && this.props.output }
+                </pre>
+              )
+              ||
               <pre
                 style={{ height: `${ viewHeight }vh` }}
                 dangerouslySetInnerHTML={ this.createMarkup() }

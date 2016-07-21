@@ -39,10 +39,12 @@ if (secrets.sshTestInfo) {
       }).then((res) => {
         expect(res.username).equal(mockRepo.username);
         expect(res.description).equal(mockRepo.description);
+        expect(res.language).equal(mockRepo.language);
 
         Repo.findOne({ username: mockRepo.username }, (err, repo) => {
           expect(repo.username).equal(mockRepo.username);
           expect(repo.description).equal(mockRepo.description);
+          expect(repo.language).equal(mockRepo.language);
           done();
         });
       }).catch((err) => {
@@ -69,6 +71,7 @@ if (secrets.sshTestInfo) {
         expect(res.length).equal(1);
         expect(res[0].username).equal(mockRepo.username);
         expect(res[0].description).equal(mockRepo.description);
+        expect(res[0].language).equal(mockRepo.language);
         done();
       }).catch(done);
     });
