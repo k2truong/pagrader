@@ -59,8 +59,8 @@ export default function submitGrades(req) {
                 (grade.bonus ? '+1 Early turn-in bonus\n' : '') +
                 `<b>Errors:</b>\n${ grade.errorList || '' }\n` +
                 `<b>Comments:</b>\n${ grade.comment || '' }\n\n` +
-                `<b>*WARNINGS*</b>\n` +
-                `Note: These warnings may not apply to you but keep them in mind for future reference.\n` +
+                (warnings ? `<b>*WARNINGS*</b>\n` +
+                `Note: These warnings may not apply to you but keep them in mind for future reference.\n` : '') +
                 `${ warnings }</pre>`,
               recipients: [{
                 address: {
@@ -81,8 +81,8 @@ export default function submitGrades(req) {
               (grade.bonus ? '+1 Early turn-in bonus\n' : '') +
               'Errors:\n' + (grade.errorList || '') + '\n' +
               'Comments:\n' + (grade.comment || '') + '\n\n' +
-              `*WARNINGS*\n` +
-              `Note: These warnings may not apply to you but keep them in mind for future reference.\n` +
+              (warnings ? `*WARNINGS*\n` +
+              `Note: These warnings may not apply to you but keep them in mind for future reference.\n` : '') +
               `${ warnings }\n\n`;
         } else {
           ungradedStudents.push(grade.studentId);
