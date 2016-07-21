@@ -71,9 +71,8 @@ export default class GraderPreview extends Component {
                 {
                   student.comment || ''
                 }
-                <br /><br />
-                <b>*WARNINGS*</b><br />
-                Note: These warnings may not apply to you but keep them in mind for future reference.<br />
+                { warnings && <b><br /><br />*WARNINGS*</b> }
+                { warnings && '\nNote: These warnings may not apply to you but keep them in mind for future reference.\n' }
                 { warnings }
               </pre>
             ))
