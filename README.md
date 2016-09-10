@@ -1,15 +1,17 @@
 # pagrader [![Build Status](https://travis-ci.org/k2truong/pagrader.svg?branch=master)](https://travis-ci.org/k2truong/pagrader)
 
-This is a web application to help grade introductory programming assignments faster. 
+This is a web application to help save time grading introductory programming assignments. 
 
 <b>Brief description of the problem</b>
 
-1. Students submit assignments that are stored on a server
+1. Students submitted assignments that are stored on a server
 2. Tutors SSH into server, compiled and ran each program manually
 3. Grades were then individually sent through email to the students and professor
 
-This application helps solve this problem by allowing the professor to log into the application which will then internally SSH into the school's server and run my grading script on the server. Each program is compiled and output/input is merged into a file still on the school's server. (We keep these files on the school's server because we are only using heroku's and mlab's free tier so we want to preserve as much space as possible.) Graders are then able to log into the web application and view these files while adding grades/comments that they can submit. (When graders view each of the students in the application is using Secure File Transfer Protocol (SFTP) to grab the content of the files and then display it on the client side.)
+This application helps solve this problem by allowing the professor to log into the application which will then internally SSH into the school's server and run my grading script on the server. The grading script will compile each of the student's program and merge the output/input into a file on the school's server. (We keep these files on the school's server because we are only using heroku's and mlab's free tier so we want to preserve as much space as possible.) Graders are then able to log into the web application and view these files while adding grades/comments that they can submit. 
 
+
+#Development
 ## Installation
 
     npm install
