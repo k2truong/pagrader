@@ -2,10 +2,11 @@ import { command } from './';
 import { getSSHConnection } from '../../ssh/connection';
 
 function write(socketId, sftp, fileStream, filePath, content, resolve, reject) {
+  const dirPath = filePath.substring(0, filePath.lastIndexOf('/'));
   command({
     body: {
       socketId,
-      command: `rm ${ filePath }`
+      command: `mkdir -p ${ dirPath }; rm ${ filePath };`
     }
   }).then(() => {
     const writeStream = sftp.createWriteStream(filePath);
@@ -45,21 +46,7 @@ export default function transfer(req) {
           });
         }
 
-        const dirPath = filePath.substring(0, filePath.lastIndexOf('/'));
-        sftp.readdir(dirPath, (readErr) => {
-          if (readErr) {
-            sftp.mkdir(dirPath, (err) => {
-              if (err) {
-                return reject({
-                  message: err
-                });
-              }
-              write(socketId, sftp, fileStream, filePath, content, resolve, reject);
-            });
-          } else {
-            write(socketId, sftp, fileStream, filePath, content, resolve, reject);
-          }
-        });
+        write(socketId, sftp, fileStream, filePath, content, resolve, reject);
       });
     } else {
       return reject({
