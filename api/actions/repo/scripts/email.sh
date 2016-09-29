@@ -8,7 +8,7 @@
 # 2) ./email.sh kenneth.e.truong@gmail.com 'CS5F2: PA5 Grades'
 #    ./email.sh <EMAIL>                     <TITLE>             <VERIFICATION>
 
-if [[ $3 ]]; then
+if [[ -z $3 ]]; then
   grades=(*.html)
   counter=0
   # Loop until all grades are sent
@@ -30,6 +30,32 @@ if [[ $3 ]]; then
   done
 fi
 
-(
-  echo "Grades and comments attached"
-) | mutt -a PAScores.txt -s "$2 $3" "$1, smarx@cs.ucsd.edu"
+TO="$1, smarx@cs.ucsd.edu"
+SUBJECT="$2 $3"
+MIME="text/plain"
+FILE=PAScores.txt
+ENCODING=base64  
+boundary="---my-unlikely-text-for-mime-boundary---$$--" 
+
+(cat <<EOF
+To: $TO
+Subject: $SUBJECT
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="$boundary"
+Content-Disposition: inline
+
+--$boundary
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Grades and comments attached
+
+--$boundary
+Content-Type: $MIME;name="$FILE"
+Content-Disposition: attachment;filename="$FILE"
+Content-Transfer-Encoding: $ENCODING
+
+EOF
+base64 $FILE
+echo ""
+echo "--$boundary" ) | /usr/sbin/sendmail

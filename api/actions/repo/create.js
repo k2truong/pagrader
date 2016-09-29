@@ -1,5 +1,5 @@
 import Repo from '../../models/repo';
-import { connect, transfer } from '../ssh';
+import { connect, command, transfer } from '../ssh';
 import path from 'path';
 import fs from 'fs';
 
@@ -61,14 +61,31 @@ export default function create(req) {
               filePath: `./.private_repo/${language}_script.sh`
             }
           }).then(() => {
-            newRepo.save((saveErr) => {
-              if (saveErr) {
-                return reject({
-                  message: saveErr
-                });
+            transfer({
+              body: {
+                socketId,
+                fileStream: fs.createReadStream(path.join(__dirname, `./scripts/email.sh`)),
+                filePath: './.private_repo/email.sh'
               }
-              resolve(connRes);
-            });
+            }).then(() => {
+              command({
+                body: {
+                  socketId,
+                  command: `cd ./.private_repo;
+                            chmod 777 *.sh;
+                            sed -i -e 's/\\r$//' *.sh;`
+                }
+              }).then(() => {
+                newRepo.save((saveErr) => {
+                  if (saveErr) {
+                    return reject({
+                      message: saveErr
+                    });
+                  }
+                  resolve(connRes);
+                });
+              });
+            }).catch(reject);
           }).catch(reject);
         });
       }).catch(reject);

@@ -33,11 +33,7 @@ export default function runScript(req) {
           socketId,
           command: `cd ${ repoPath };
             cp -r ${ path }/* .;
-            cp ../*.sh .;
-            script=*.sh;
-            sed 's/\\r$//' $script > temp;
-            mv temp $script;
-            chmod 777 $script;`
+            cp ../*_script.sh .;`
         }
       }).then(() => {
         return command({

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { save, getStudents, saveStudents, submitGrades } from '../actions/grade';
+import { save, getStudents, saveStudents } from '../actions/grade';
 import mongoose from 'mongoose';
 import secrets from '../config/secrets';
 import Grade from '../models/grade';
@@ -257,20 +257,4 @@ describe('Grade API', () => {
       });
     }).catch(done);
   });
-
-  // Only test sparkpost if we have it enabled
-  if (process.env.SPARKPOST_SANDBOX_DOMAIN) {
-    const MOCK_GRADER = {
-      graderId: 'cs7u3',
-      repoId: 'cs7s10',
-      assignmentId: 'PA1'
-    };
-    it('should email students and professor grades', (done) => {
-      submitGrades({
-        body: MOCK_GRADER
-      }).then(() => {
-        done();
-      }).catch(done);
-    });
-  }
 });

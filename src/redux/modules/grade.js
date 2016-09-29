@@ -137,7 +137,7 @@ export function update(studentIndex, editedStudent) {
 export function submit(options) {
   return {
     types: [SUBMIT, SUBMIT_SUCCESS, SUBMIT_FAIL],
-    promise: (client) => client.post('/grade/submitGrades', {
+    promise: (client) => client.post('/ssh/emailGrades', {
       data: options
     })
   };

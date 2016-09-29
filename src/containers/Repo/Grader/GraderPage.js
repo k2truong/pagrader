@@ -150,6 +150,7 @@ export default class GraderPage extends Component {
 
     if (!missingStudents) {
       this.props.submit({
+        socketId: socket.id,
         verification,
         bbcEmail,
         assignmentId,

@@ -3,3 +3,4 @@ export connect from './connect';
 export transfer from './transfer';
 export runScript from './runScript';
 export getFile from './getFile';
+export emailGrades from './emailGrades';
