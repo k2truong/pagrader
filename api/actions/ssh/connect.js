@@ -8,7 +8,7 @@ export default function connect(req) {
   return new Promise((resolve, reject) => {
     // if (req.user) Need to add this for production
     const conn = new Client();
-    const { username, password, socketId } = req.body;
+    const { username, password, socketId, language } = req.body;
 
     conn.on('error', (connErr) => {
       if (connErr) {
@@ -36,7 +36,7 @@ export default function connect(req) {
           resolve({
             username: username,
             path: stdout,
-            language: res.language
+            language: res && res.language || language
           });
         }).catch(reject);
       }).connect({
