@@ -1,4 +1,4 @@
-# pagrader [![Build Status](https://travis-ci.org/k2truong/pagrader.svg?branch=master)](https://travis-ci.org/k2truong/pagrader)
+# pagrader [![Build Status](https://travis-ci.org/kennethtruong/pagrader.svg?branch=master)](https://travis-ci.org/kennethtruong/pagrader)
 
 This is a web application to help save time grading introductory programming assignments. 
 
