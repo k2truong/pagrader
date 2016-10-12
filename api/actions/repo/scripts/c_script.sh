@@ -155,7 +155,7 @@ for dir in ${repos[@]}; do
             errorCode=$?
             #Check if the program was terminated
             if [[ $errorCode -eq 142 ]] ; then
-              printf "<p class='alert alert-danger'>Program terminated because of infinite loop.\nPlease run their program manually or check their code.</p>" >> $fname.out.html
+              printf "<p class='alert alert-danger'>Program terminated because of infinite loop.\nPlease run their program manually or check their code.</p>" > $fname.out.html
               rm error # Error is from infinite loop
               break
             elif [[ $errorCode -eq 143 ]] ; then
