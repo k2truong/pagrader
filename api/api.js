@@ -113,10 +113,10 @@ export default new Promise((resolve, reject) => {
           });
 
           // sshConnections();
-          // console.log(`${socket.id} Connected from Socket --------`);
+          // console.log(`${socket.conn.id} Connected from Socket --------`);
           socket.on('disconnect', () => {
-            closeSSHConnection(socket.id);
-            // console.log(`${socket.id} Disconnected from Socket --------`);
+            closeSSHConnection(socket.conn.id);
+            // console.log(`${socket.conn.id} Disconnected from Socket --------`);
           });
 
           socket.on('msg', (data) => {
